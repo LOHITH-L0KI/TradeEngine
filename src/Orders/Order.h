@@ -2,10 +2,12 @@
 #define ORDER_H
 #include <chrono>
 #include "ExchangeMode.h"
+#include "OrderType.h"
 #include "DLink.h"
+#include "OrderUtil.h"
+
 
 namespace ch = std::chrono;
-
 namespace Trader {
 
 	/// <summary>
@@ -17,24 +19,30 @@ namespace Trader {
 	*	by disablting assignment and copy operators.
 	*/
 
+	class OrderBook;
 	class Order : public DLink
 	{
-
 	public:
 		Order();
-		Order(size_t _id, ExchangeMode _mode, double _prize, size_t _count);
+		Order(ID _id, OrderType _type, ExchangeMode _mode, double _prize, size_t _count, OrderBook* _book);
 		const Order operator = (const Order& _cpy) = delete;
 
 		void deleteOrder();
 		bool isValid();
+		OrderType getType();
+
+		void update(OrderUpdateData& data);
+
+	private:
+		ID id;
+		size_t hint;
+		OrderBook* book;
 
 	public:
-		size_t id;
 		double prize;
 		size_t count;
-		ch::time_point<ch::system_clock> tp;
 		ExchangeMode mode;
-		bool isDeleted;
+		ch::time_point<ch::system_clock> tp;
 	};
 
 }

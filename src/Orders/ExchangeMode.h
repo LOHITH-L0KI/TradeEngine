@@ -3,7 +3,8 @@
 
 namespace Trader {
 
-	enum ExchangeMode {
+	enum ExchangeMode : size_t {
+
 		Market,
 		Limit,
 		Undefined

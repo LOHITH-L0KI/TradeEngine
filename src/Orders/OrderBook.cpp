@@ -1,4 +1,5 @@
 #include "OrderBook.h"
+#include "Order.h"
 #include <cassert>
 
 namespace Trader {
@@ -41,13 +42,13 @@ namespace Trader {
         //delete any heap allocated memory.
     }
 
-    Order* OrderBook::addOrder(OrderType type, double prize, size_t count, ExchangeMode mode)
+    Order* OrderBook::add(OrderType type, double prize, size_t count, ExchangeMode mode)
     {
         //get available slot
         size_t slotId = privGetNewId();
 
         //placement new
-        Order* order = new((&memOrders[0]) + slotId) Order(slotId, mode, prize, count);
+        Order* order = new((&memOrders[0]) + slotId) Order(slotId, type, mode, prize, count, this);
 
         if (type == OrderType::Buy)
             privAddToBuy(*order);
@@ -55,6 +56,22 @@ namespace Trader {
             privAddToSell(*order);
         
         return order;
+    }
+
+    void OrderBook::update(ID orderId, OrderUpdateData& data)
+    {
+        Order* order = &memOrders[orderId];
+        order->count = data.count;
+
+        //perform operatoins according to the order type.
+        if (order->getType() == OrderType::Buy) {
+
+
+        }
+        else {
+
+           
+        }
     }
 
     size_t OrderBook::privGetNewId()

@@ -139,6 +139,7 @@
     <ClInclude Include="src\Orders\Order.h" />
     <ClInclude Include="src\Orders\OrderBook.h" />
     <ClInclude Include="src\Orders\OrderType.h" />
+    <ClInclude Include="src\Orders\OrderUtil.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

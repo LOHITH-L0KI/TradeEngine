@@ -2,7 +2,9 @@
 #define ORDER_TYPE_ENUM
 
 namespace Trader {
-	enum OrderType {
+
+	enum OrderType : size_t {
+
 		Sell,
 		Buy
 	};

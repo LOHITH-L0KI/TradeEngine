@@ -1,15 +1,17 @@
-#include <Order.h>
 #include <OrderType.h>
 #include <vector>
 #include <stack>
+#include <ExchangeMode.h>
+#include <OrderUtil.h>
+
 #ifndef ORDER_BOOK_H
 #define ORDER_BOOK_H
 
 namespace Trader {
 
+	class Order;
 	class OrderBook
 	{
-
 	public:
 
 		OrderBook();
@@ -18,9 +20,11 @@ namespace Trader {
 		~OrderBook();
 
 		//add order
-		Order* addOrder(OrderType type, double prize, size_t count, ExchangeMode mode);
+		Order* add(OrderType type, double prize, size_t count, ExchangeMode mode);
 
 		//update order
+		void update(ID orderId, OrderUpdateData& data);
+
 		//delete order
 
 	private:
@@ -55,7 +59,7 @@ namespace Trader {
 
 		//Container to store free slots.
 		//this takes priority than global ORDER_ID
-		std::vector<size_t> freedSlots;
+		std::vector<ID> freedSlots;
 	};
 
 }

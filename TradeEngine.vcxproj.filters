@@ -49,5 +49,8 @@
     <ClInclude Include="src\LinkList\DLink.h">
       <Filter>Source Files\src\LinkList</Filter>
     </ClInclude>
+    <ClInclude Include="src\Orders\OrderUtil.h">
+      <Filter>Source Files\src\Orders</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>
