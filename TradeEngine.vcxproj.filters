@@ -1,0 +1,53 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="Source Files">
+      <UniqueIdentifier>{4FC737F1-C7A5-4376-A066-2A32D752A2FF}</UniqueIdentifier>
+      <Extensions>cpp;c;cc;cxx;c++;cppm;ixx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
+    </Filter>
+    <Filter Include="Resource Files">
+      <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
+      <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
+    </Filter>
+    <Filter Include="Source Files\src">
+      <UniqueIdentifier>{1caeee15-ab0a-4e52-a1b8-a51192eccbab}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\src\Orders">
+      <UniqueIdentifier>{561c35df-456a-4f44-8f2c-0fdf5c3dbe6e}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\src\LinkList">
+      <UniqueIdentifier>{707c255f-d1c7-44ca-8093-5b4e974b79ed}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="TradeEngine.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Orders\Order.cpp">
+      <Filter>Source Files\src\Orders</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Orders\OrderBook.cpp">
+      <Filter>Source Files\src\Orders</Filter>
+    </ClCompile>
+    <ClCompile Include="src\LinkList\DLink.cpp">
+      <Filter>Source Files\src\LinkList</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="src\Orders\OrderType.h">
+      <Filter>Source Files\src\Orders</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Orders\Order.h">
+      <Filter>Source Files\src\Orders</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Orders\OrderBook.h">
+      <Filter>Source Files\src\Orders</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Orders\ExchangeMode.h">
+      <Filter>Source Files\src\Orders</Filter>
+    </ClInclude>
+    <ClInclude Include="src\LinkList\DLink.h">
+      <Filter>Source Files\src\LinkList</Filter>
+    </ClInclude>
+  </ItemGroup>
+</Project>
