@@ -1,52 +1,73 @@
 #ifndef POOL_H
 #define POOL_H
+#include <assert.h>
 
 namespace Common {
 
+//define bitset unit to eaither 64 or 32 bit unsigned int
 #if defined(_WIN64) || defined(__x86_64__)
 #define _BITSET_UNIT UINT64_MAX
+#define _BIT_COUNT 64
 #else
 #define _BITSET_UNIT UINT32_MAX
+#define _BIT_COUNT 32
 #endif
 
-	template<typename T, const std::size_t _count, const std::size_t _bitCount = sizeof(size_t)*8>
+#define _FREE_IDX(bitIdx) (bitIdx / _BIT_COUNT) + ((bitIdx % _BIT_COUNT) > 0 ? 1 : 0)
+#define _SIZE_T_BY_HBIT(x) (size_t)1 << x
+
+	template<typename T, const std::size_t __count>
 	class Pool {
 	public:
-		Pool() {
+		inline Pool() {
+			//set all blocks of memory to free.
 			std::memset(&(this->_freeIdx), _BITSET_UNIT, this->_freeCount * sizeof(size_t));
-
-			std::cout << "Array Addr:: " << &this->_memBlock << "\n";
 		}
+
+		Pool(const Pool&) = delete;
+		Pool& operator = (const Pool&) = delete;
+		Pool(const Pool&&) = delete;
+		Pool& operator = (const Pool&&) = delete;
 		
+		//Allocates memory 
 		template<typename... A>
-		T* allocate(A&&... args) {
+		inline T* allocate(A... args) noexcept{
 
 			int freeIdx = getFreeIndex();
 
-			if (freeIdx == -1)
+			if _UNLIKELY(freeIdx < 0) {
+				std::cerr << "Memory Full, no free bloack available to allocate memory.\n";
 				return nullptr;
+			}
 
-			return new(&(this->_memBlock[0]) + freeIdx) T((std::forward<A>(args))...);
+			// placement new
+			return new(&(this->_memBlock[0]) + freeIdx) T(args...);
 		}
 
-		void dealloc(T* t) {
+		//free memory
+		inline void dealloc(T* t) noexcept{
 
-			size_t idx = (t - &this->_memBlock[0]);
-			size_t uiIdx = idx/(sizeof(size_t) * 8);
+			const size_t idx = (t - &this->_memBlock[0]);
 
-			size_t toggleBit = idx % (sizeof(size_t) * 8);
+			if _UNLIKELY(idx < 0 || idx > _count) {
+				std::cerr << "This object does not belong to this pool.\n";
+				return;
+			}
 
-			this->_freeIdx[uiIdx] = this->_freeIdx[uiIdx] | ((size_t)1 << (sizeof(size_t) * 8 - 1 - toggleBit));
+			const size_t uiIdx = idx / _BIT_COUNT;
+			const size_t bitToToggle = idx % _BIT_COUNT;
+
+			this->_freeIdx[uiIdx] = this->_freeIdx[uiIdx] | _SIZE_T_BY_HBIT(_BIT_COUNT - 1 - bitToToggle);
 		}
 
 	private:
 
-		int getFreeIndex() noexcept {
+		inline int getFreeIndex() noexcept {
 
 			int idx = -1;
 			size_t uiIdx = 0;
 
-			while ((uiIdx < this->_freeCount) && !this->_freeIdx[uiIdx]) {
+			while ((uiIdx < this->_freeCount) && (this->_freeIdx[uiIdx] > 0)) {
 				++uiIdx;
 			}
 
@@ -56,24 +77,33 @@ namespace Common {
 			return idx;
 		}
 
-		size_t toggleHBit(size_t uiIdx) {
+		inline size_t toggleHBit(size_t uiIdx) noexcept{
 			
 			size_t pos = 0;
-			size_t hBitVal = (size_t)1 << (sizeof(size_t) * 8 - 1);
+			size_t hBitVal = _SIZE_T_BY_HBIT(_BIT_COUNT - 1);
 
 			while (!(this->_freeIdx[uiIdx] & hBitVal)) {
 				hBitVal = hBitVal >> 1;
 				++pos;
 			}
+
 			this->_freeIdx[uiIdx] = (this->_freeIdx[uiIdx] & (~hBitVal));
 
 			return pos;
 		}
 
 	private:
-		T _memBlock[_count];
-		size_t _freeIdx[(_count / _bitCount) + ((_count % _bitCount) > 0 ? 1 : 0)];
-		const size_t _freeCount = (_count / _bitCount) + ((_count % _bitCount) > 0 ? 1 : 0);
+		//Array of objects of type 'T'.
+		T _memBlock[__count];
+		
+		//Bit map to check if element at an index is free.
+		size_t _freeIdx[_FREE_IDX(__count)];
+
+		//Bit map count
+		const size_t _freeCount = _FREE_IDX(__count);
+
+		//mem block count
+		const size_t _count = __count;
 	};
 }
 
