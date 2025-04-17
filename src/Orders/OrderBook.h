@@ -8,7 +8,7 @@
 #define ORDER_BOOK_H
 
 namespace Trader {
-
+	
 	class Order;
 	class OrderBook
 	{

@@ -41,7 +41,7 @@ namespace Trader {
 
 	bool Order::isValid()
 	{
-		return !IS_DELETED(this->hint);
+		return IS_DELETED(this->hint);
 	}
 
 	OrderType Order::getType()

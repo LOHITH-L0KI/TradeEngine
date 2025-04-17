@@ -18,6 +18,12 @@
     <Filter Include="Source Files\src\LinkList">
       <UniqueIdentifier>{707c255f-d1c7-44ca-8093-5b4e974b79ed}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Source Files\src\Common">
+      <UniqueIdentifier>{fd4083aa-74b3-4406-b7f3-2a0340193c9f}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\src\Common\Util">
+      <UniqueIdentifier>{f5319bdb-79a5-49db-ae04-0e5ed7ec964e}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="TradeEngine.cpp">
@@ -51,6 +57,12 @@
     </ClInclude>
     <ClInclude Include="src\Orders\OrderUtil.h">
       <Filter>Source Files\src\Orders</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Common\Util\Thread_Util.h">
+      <Filter>Source Files\src\Common\Util</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Common\Util\Pool.h">
+      <Filter>Source Files\src\Common\Util</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

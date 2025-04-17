@@ -11,13 +11,13 @@ namespace Trader{
 	};
 
 #define SET_BUY(hint) hint |= 0x1
-#define IS_BUY(hint) !(hint & 0x1)
+#define IS_BUY(hint) (hint & 0x1) == 0
 
 #define SET_SELL(hint) hint &= 0xFFFFFFFE
-#define IS_SELL(hint) hint & 0x1
+#define IS_SELL(hint) (hint & 0x1) > 0
 
 #define SET_DELETED(hint) hint |= 0x2
-#define IS_DELETED(hint) hint & 0x2
+#define IS_DELETED(hint) (hint & 0x2) > 0
 
 }
 

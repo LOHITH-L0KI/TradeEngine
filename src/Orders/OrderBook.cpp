@@ -99,8 +99,7 @@ namespace Trader {
         //add order to buy list in max order
         if (!maxBuy)
             maxBuy = &order;
-        else {
-            
+        else _LIKELY {
             Order* curr = maxBuy;
             Order* prev = nullptr;
 
