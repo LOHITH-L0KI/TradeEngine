@@ -35,7 +35,7 @@ namespace Common {
 
 			int freeIdx = getFreeIndex();
 
-			if _UNLIKELY(freeIdx < 0) {
+			if(freeIdx < 0) _UNLIKELY{
 				std::cerr << "Memory Full, no free bloack available to allocate memory.\n";
 				return nullptr;
 			}
@@ -49,7 +49,7 @@ namespace Common {
 
 			const size_t idx = (t - &this->_memBlock[0]);
 
-			if _UNLIKELY(idx < 0 || idx > _count) {
+			if (idx < 0 || idx > _count) _UNLIKELY{
 				std::cerr << "This object does not belong to this pool.\n";
 				return;
 			}
@@ -67,7 +67,7 @@ namespace Common {
 			int idx = -1;
 			size_t uiIdx = 0;
 
-			while ((uiIdx < this->_freeCount) && (this->_freeIdx[uiIdx] > 0)) {
+			while ((uiIdx < this->_freeCount) && (this->_freeIdx[uiIdx] == 0)) {
 				++uiIdx;
 			}
 

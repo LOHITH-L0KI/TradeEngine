@@ -138,6 +138,7 @@
     <ClCompile Include="TradeEngine.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="src\Common\Util\LFC_Queue.h" />
     <ClInclude Include="src\Common\Util\Pool.h" />
     <ClInclude Include="src\Common\Util\Thread_Util.h" />
     <ClInclude Include="src\LinkList\DLink.h" />

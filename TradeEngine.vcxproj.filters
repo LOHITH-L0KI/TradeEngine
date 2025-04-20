@@ -64,5 +64,8 @@
     <ClInclude Include="src\Common\Util\Pool.h">
       <Filter>Source Files\src\Common\Util</Filter>
     </ClInclude>
+    <ClInclude Include="src\Common\Util\LFC_Queue.h">
+      <Filter>Source Files\src\Common\Util</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>
