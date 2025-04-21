@@ -1,8 +1,10 @@
 #ifndef POOL_H
 #define POOL_H
-#include <assert.h>
 
-namespace Common {
+#include <assert.h>
+#include <iostream>
+
+namespace Util {
 
 //define bitset unit to eaither 64 or 32 bit unsigned int
 #if defined(_WIN64) || defined(__x86_64__)

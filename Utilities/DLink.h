@@ -1,7 +1,7 @@
 #ifndef DLINK_H
 #define DLINK_H
 
-namespace Trader {
+namespace Util {
 
 	//TODO:: Add template to the class which says the derived node type.
 	class DLink

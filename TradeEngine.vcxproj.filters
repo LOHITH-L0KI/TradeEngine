@@ -15,15 +15,6 @@
     <Filter Include="Source Files\src\Orders">
       <UniqueIdentifier>{561c35df-456a-4f44-8f2c-0fdf5c3dbe6e}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Source Files\src\LinkList">
-      <UniqueIdentifier>{707c255f-d1c7-44ca-8093-5b4e974b79ed}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Source Files\src\Common">
-      <UniqueIdentifier>{fd4083aa-74b3-4406-b7f3-2a0340193c9f}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Source Files\src\Common\Util">
-      <UniqueIdentifier>{f5319bdb-79a5-49db-ae04-0e5ed7ec964e}</UniqueIdentifier>
-    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="TradeEngine.cpp">
@@ -34,9 +25,6 @@
     </ClCompile>
     <ClCompile Include="src\Orders\OrderBook.cpp">
       <Filter>Source Files\src\Orders</Filter>
-    </ClCompile>
-    <ClCompile Include="src\LinkList\DLink.cpp">
-      <Filter>Source Files\src\LinkList</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -52,20 +40,8 @@
     <ClInclude Include="src\Orders\ExchangeMode.h">
       <Filter>Source Files\src\Orders</Filter>
     </ClInclude>
-    <ClInclude Include="src\LinkList\DLink.h">
-      <Filter>Source Files\src\LinkList</Filter>
-    </ClInclude>
     <ClInclude Include="src\Orders\OrderUtil.h">
       <Filter>Source Files\src\Orders</Filter>
-    </ClInclude>
-    <ClInclude Include="src\Common\Util\Thread_Util.h">
-      <Filter>Source Files\src\Common\Util</Filter>
-    </ClInclude>
-    <ClInclude Include="src\Common\Util\Pool.h">
-      <Filter>Source Files\src\Common\Util</Filter>
-    </ClInclude>
-    <ClInclude Include="src\Common\Util\LFC_Queue.h">
-      <Filter>Source Files\src\Common\Util</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

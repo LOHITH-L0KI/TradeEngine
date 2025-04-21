@@ -6,6 +6,7 @@
 #include "DLink.h"
 #include "OrderUtil.h"
 
+using namespace Util;
 
 namespace ch = std::chrono;
 namespace Trader {

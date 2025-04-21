@@ -1,6 +1,7 @@
+#include "pch.h"
 #include "DLink.h"
 
-namespace Trader {
+namespace Util {
 
 	DLink::DLink()
 		:next(nullptr),

@@ -3,10 +3,10 @@
 
 #include <iostream>
 #include "Pool.h"
-#include <LFC_Queue.h>
-#include <Thread_Util.h>
+#include "LFC_Queue.h"
+#include "Thread_Util.h"
 
-using namespace Common;
+using namespace Util;
 
 struct Test{
 
@@ -70,7 +70,7 @@ int main()
     };
 
     //Reader thread
-    std::thread* rT = createAndStartThread(1, "R", reader);
+    std::thread* rT = Thread::createAndStartThread(1, "R", reader);
     std::atomic_int* counter = new std::atomic_int(0);
 
     auto writer = [&](int index) {
@@ -110,7 +110,7 @@ int main()
     std::vector<std::thread*> wTs(20, nullptr);
 
     for (int i = 0; i < 20; i++) {
-        wTs[i] = createAndStartThread(1, "W_" + std::to_string(i), writer, i);
+        wTs[i] = Thread::createAndStartThread(1, "W_" + std::to_string(i), writer, i);
     }
 
     

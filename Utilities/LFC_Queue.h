@@ -1,11 +1,9 @@
 #ifndef LFC_QUEUE_H
 #define LFC_QUEUE_H
-
 #include <atomic>
 #include <vector>
 #include <bit>
-
-namespace Common {
+namespace Util {
 
 	template<typename T, size_t __capacity>
 	requires(std::has_single_bit(__capacity)) // Alowes only power of two.
@@ -35,7 +33,7 @@ namespace Common {
 			/// Writes data to data slot.
 			/// Waits till the slot is freed by other threads.
 			/// </summary>
-			/// <param name="data">data to be stored</param>
+			/// <param name="data">: data to be stored</param>
 			void set(const T& data) {
 
 				//spinlock - wait for the data slot to be available.
@@ -95,10 +93,24 @@ namespace Common {
 	//METHODS
 	public:
 
+		inline LFC_Queue& operator << (const T& data) {
+			
+			push(data);
+
+			return *this;
+		}
+
+		inline LFC_Queue& operator >> (T& data) {
+			
+			pop(data);
+
+			return *this;
+		}
+
 		/// <summary>
 		/// Removes first element to queue.
 		/// </summary>
-		/// <param name="data">Memory location to copy the element from queue</param>
+		/// <param name="data">: Memory location to copy the element from queue</param>
 		/// <returns>True if element is successfully removed from queue</returns>
 		inline bool pop(T& data) {
 
@@ -129,7 +141,7 @@ namespace Common {
 		/// <summary>
 		/// Inserts element at the end
 		/// </summary>
-		/// <param name="data">data that should be inserted into the queue</param>
+		/// <param name="data">: data that should be inserted into the queue</param>
 		/// <returns>True if data is successfully inserted to queue</returns>
 		inline bool push(const T& data) {
 
