@@ -73,12 +73,16 @@
   <PropertyGroup Label="Vcpkg">
     <VcpkgEnableManifest>true</VcpkgEnableManifest>
   </PropertyGroup>
+  <PropertyGroup Label="Vcpkg" Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <VcpkgInstalledDir>.\vcpkg_installed</VcpkgInstalledDir>
+  </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
       <WarningLevel>Level3</WarningLevel>
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>WIN32;_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
+      <AdditionalIncludeDirectories>E:\Projects\Logger\src\TextLogger;E:\Projects\Logger\src\LogRunner;$(ProjectDir)Utilities;$(ProjectDir)src\Orders;$(ProjectDir)src;E:\Projects\Logger\src\Enums;E:\Projects\Logger\src;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -107,8 +111,9 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>$(ProjectDir)Utilities;$(ProjectDir)src\Orders;$(ProjectDir)src;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>E:\Projects\Logger\src\TextLogger;E:\Projects\Logger\src\LogRunner;$(ProjectDir)Utilities;$(ProjectDir)src\Orders;$(ProjectDir)src;E:\Projects\Logger\src\Enums;E:\Projects\Logger\src;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <LanguageStandard>stdcpp20</LanguageStandard>
+      <TreatWarningAsError>false</TreatWarningAsError>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -123,6 +128,7 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
+      <AdditionalIncludeDirectories>E:\Projects\Logger\src\TextLogger;E:\Projects\Logger\src\LogRunner;$(ProjectDir)Utilities;$(ProjectDir)src\Orders;$(ProjectDir)src;E:\Projects\Logger\src\Enums;E:\Projects\Logger\src;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -144,6 +150,9 @@
     <ClInclude Include="src\Orders\OrderUtil.h" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\Logger\Logger.vcxproj">
+      <Project>{21e00125-c2b3-430d-84b7-6db9e78a335c}</Project>
+    </ProjectReference>
     <ProjectReference Include="Utilities\Utilities.vcxproj">
       <Project>{3644deea-8c6d-416e-81a4-6621cfb21c29}</Project>
     </ProjectReference>

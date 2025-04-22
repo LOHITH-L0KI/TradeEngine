@@ -9,10 +9,11 @@
 
 namespace Util {
 
-	namespace Thread {
+	static class Thread {
 
+	public:
 		//PIN THREAD TO CPU CORE WITH ID = "coreId"
-		bool setThreadCore(const int coreId) noexcept {
+		static bool setThreadCore(const int coreId) noexcept {
 
 			cpu_set_t cpuSet;
 			CPU_ZERO(&cpuSet);				//SET 0 AS CORE_ID
@@ -22,7 +23,7 @@ namespace Util {
 		}
 
 		template<typename T, typename... A>
-		inline auto createAndStartThread(const int coreId, const std::string& name, T&& func, A&&... args) noexcept
+		static inline auto createAndStartThread(const int coreId, const std::string& name, T&& func, A&&... args) noexcept
 		{
 			std::atomic_bool failed = false, running = false;
 
@@ -46,7 +47,7 @@ namespace Util {
 				running = true;
 
 				//execute the function
-				std::forward<T>(func)((std::forward<A>(args))...);
+				func(std::forward<A>(args)...);
 				};
 
 			std::thread* t = new std::thread(tBody);
@@ -64,7 +65,7 @@ namespace Util {
 
 			return t;
 		}
-	}
+	};
 }
 
 #endif // !THREAD_UTIL_H

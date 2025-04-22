@@ -16,7 +16,7 @@ namespace Util {
 #endif
 
 #define _FREE_IDX(bitIdx) (bitIdx / _BIT_COUNT) + ((bitIdx % _BIT_COUNT) > 0 ? 1 : 0)
-#define _SIZE_T_BY_HBIT(x) (size_t)1 << x
+#define _SIZE_T_BY_HBIT(x) (size_t)1 << (x)
 
 	template<typename T, const std::size_t __count>
 	class Pool {
@@ -59,7 +59,7 @@ namespace Util {
 			const size_t uiIdx = idx / _BIT_COUNT;
 			const size_t bitToToggle = idx % _BIT_COUNT;
 
-			this->_freeIdx[uiIdx] = this->_freeIdx[uiIdx] | _SIZE_T_BY_HBIT(_BIT_COUNT - 1 - bitToToggle);
+			this->_freeIdx[uiIdx] = this->_freeIdx[uiIdx] | (_SIZE_T_BY_HBIT(_BIT_COUNT - 1 - bitToToggle));
 		}
 
 	private:

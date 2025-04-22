@@ -5,12 +5,14 @@
 #include "Pool.h"
 #include "LFC_Queue.h"
 #include "Thread_Util.h"
+#include "Logger.h"
 
 using namespace Util;
+using namespace Logger;
 
 struct Test{
 
-    Test(){}
+    Test():i(0), f(0.0), b(false){}
 
     Test(int _i, float _f, bool _b)
         :i(_i), f(_f), b(_b)
@@ -22,16 +24,21 @@ struct Test{
 };
 
 struct Test_I {
-    Test_I(){}
+    Test_I() : i(0){}
 
     Test_I(int _i)
         :i (_i){ }
 
     int i;
 };
+
 int main()
 {
+    Log::Configuration(LogType::TEXT, RunMode::CONCURRENT_THREAD);
+
     std::cout << "TradeEngine\n";
+    Log::Info("TradeEngine");
+
 
     //POOL TESTING
     Pool<Test_I, 100> *tPool = new Pool<Test_I, 100>();
@@ -41,6 +48,7 @@ int main()
         t[i] = tPool->allocate(i);
 
         std::cout << "Address:: " << t[i] << "\n";
+        Log::Debug("Address:: {0}", (void*)t[i]);
     }
 
     //LFC_Queue TESTING
@@ -53,6 +61,7 @@ int main()
     auto reader = [&] {
 
         std::cout << "R:: Ready\n";
+        Log::Debug("R:: Ready");
 
         //wait for start trigger
         while (!startTrig->load(std::memory_order_relaxed));
@@ -63,6 +72,7 @@ int main()
             if (queue->pop(read)) {
 
                 std::cout << "R:: " << read.i << "\n";
+                Log::Debug("R:: {0}", read.i);
             }
         }
 
@@ -75,11 +85,15 @@ int main()
 
     auto writer = [&](int index) {
         std::cout << "W_" << index << ":: Ready\n";
+        Log::Debug("W_{0}:: Ready", index);
 
         if (counter->fetch_add(1, std::memory_order_acq_rel) == 19) {
             
             std::cout << "\n----------------------------------\n";
+            Log::Info("------------------------------");
             std::cout << "W_" << index << ":: " << "Triggering Threads(" << counter->load() <<  ")Start.\n";
+            Log::Debug("W_{0}:: Triggering Thread({1})Start.", index, counter->load());
+
             startTrig->store(true);
         }
 
@@ -90,10 +104,14 @@ int main()
         while (!queue->push(*(t[index])));
 
         std::cout << "W_" << index << ":: " << t[index]->i << '\n';
+        Log::Debug("W_{0}:: {1}", index, t[index]->i);
 
         if (counter->fetch_sub(1, std::memory_order_acq_rel) == 1) {
             std::cout << "\n----------------------------------\n";
+            Log::Info("------------------------------");
+
             std::cout << "W_" << index << ":: " << "Kill Trigger\n";
+            Log::Debug("W_{0}:: Kill Trigger", index);
             
             kill->store(true, std::memory_order_seq_cst);
         }
@@ -125,4 +143,5 @@ int main()
     delete kill;
     delete queue;
     delete tPool;
+    Log::Destroy();
 }
