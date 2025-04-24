@@ -93,20 +93,6 @@ namespace Util {
 	//METHODS
 	public:
 
-		inline LFC_Queue& operator << (const T& data) {
-			
-			push(data);
-
-			return *this;
-		}
-
-		inline LFC_Queue& operator >> (T& data) {
-			
-			pop(data);
-
-			return *this;
-		}
-
 		/// <summary>
 		/// Removes first element to queue.
 		/// </summary>

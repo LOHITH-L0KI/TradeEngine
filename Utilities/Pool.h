@@ -8,11 +8,11 @@ namespace Util {
 
 //define bitset unit to eaither 64 or 32 bit unsigned int
 #if defined(_WIN64) || defined(__x86_64__)
-#define _BITSET_UNIT UINT64_MAX
-#define _BIT_COUNT 64
+	#define _BITSET_UNIT UINT64_MAX
+	#define _BIT_COUNT 64
 #else
-#define _BITSET_UNIT UINT32_MAX
-#define _BIT_COUNT 32
+	#define _BITSET_UNIT UINT32_MAX
+	#define _BIT_COUNT 32
 #endif
 
 #define _FREE_IDX(bitIdx) (bitIdx / _BIT_COUNT) + ((bitIdx % _BIT_COUNT) > 0 ? 1 : 0)
@@ -23,6 +23,7 @@ namespace Util {
 	public:
 		inline Pool() {
 			//set all blocks of memory to free.
+			std::cout << "Mem Size Idx Cnt:: " << this->_freeCount;
 			std::memset(&(this->_freeIdx), _BITSET_UNIT, this->_freeCount * sizeof(size_t));
 		}
 
@@ -74,7 +75,7 @@ namespace Util {
 			}
 
 			if (uiIdx < this->_freeCount)
-				idx = (sizeof(size_t) * uiIdx) + toggleHBit(uiIdx);
+				idx = (_BIT_COUNT * uiIdx) + toggleHBit(uiIdx);
 
 			return idx;
 		}

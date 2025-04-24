@@ -34,7 +34,9 @@ struct Test_I {
 
 int main()
 {
-    Log::Configuration(LogType::TEXT, RunMode::CONCURRENT_THREAD);
+    //default config
+    TextLoggerConfig db;
+    Log::Configure<LogType::TEXT>(RunMode::CONCURRENT_THREAD, db);
 
     std::cout << "TradeEngine\n";
     Log::Info("TradeEngine");

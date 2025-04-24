@@ -39,10 +39,10 @@ namespace Util {
 					return;
 				}
 
-				std::cout << "Successfully set core affinity for "
+			/*	std::cout << "Successfully set core affinity for "
 					<< name << " "
 					<< pthread_self().p << " to core: "
-					<< coreId << '\n';
+					<< coreId << '\n';*/
 
 				running = true;
 
