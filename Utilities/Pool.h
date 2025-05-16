@@ -42,7 +42,10 @@ namespace Util {
 				std::cerr << "Memory Full, no free bloack available to allocate memory.\n";
 				return nullptr;
 			}
-
+			
+			//TODO :: check if operator()(...) can be used.
+			//return &((this->_memBlock[freeIdx])(args...));
+			
 			// placement new
 			return new(&(this->_memBlock[0]) + freeIdx) T(args...);
 		}
@@ -56,6 +59,9 @@ namespace Util {
 				std::cerr << "This object does not belong to this pool.\n";
 				return;
 			}
+
+			//clear the object
+			memset(t, 0x0, sizeof(T));
 
 			const size_t uiIdx = idx / _BIT_COUNT;
 			const size_t bitToToggle = idx % _BIT_COUNT;
