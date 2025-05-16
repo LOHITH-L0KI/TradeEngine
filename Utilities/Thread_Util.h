@@ -23,7 +23,7 @@ namespace Util {
 		}
 
 		template<typename T, typename... A>
-		static inline auto createAndStartThread(const int coreId, const std::string& name, T&& func, A&&... args) noexcept
+		static inline auto createAndStartThread(const int coreId, const std::string& name,  T&& func, A&&... args) noexcept
 		{
 			std::atomic_bool failed = false, running = false;
 
@@ -48,7 +48,7 @@ namespace Util {
 
 				//execute the function
 				func(std::forward<A>(args)...);
-				};
+			};
 
 			std::thread* t = new std::thread(tBody);
 
