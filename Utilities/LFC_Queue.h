@@ -107,11 +107,10 @@ namespace Util {
 
 			curr_r_idx = _read_index.load(std::memory_order_acquire);
 
-			//update the index if curr_r_idx is still valid, i.e it is not read by other thread.
+			//update the index if curr_r_idx is still valid, i.e if other thread have not consumed data from this index.
 			if (!_read_index.compare_exchange_strong(curr_r_idx, (curr_r_idx + 1) & _indexMask, std::memory_order_acq_rel))
 				return false;
 
-			//std::cout << "I_R:: " << _queue[curr_r_idx]._data.i << ", ";
 			data = _queue[curr_r_idx].get();
 
 			//make the data slot available for next write
@@ -160,7 +159,7 @@ namespace Util {
 		/// Returns the size of queue.
 		/// </summary>
 		/// <returns>element count</returns>
-		inline size_t const size() { return _size; }
+		inline size_t const size() { return _size.load(); }
 	
 	//DATA
 	private:

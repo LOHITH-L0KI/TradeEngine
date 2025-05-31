@@ -28,7 +28,7 @@ namespace Util {
 			std::atomic_bool failed = false, running = false;
 
 			auto tBody = [&] {
-				if (coreId >= 0 && !setThreadCore(coreId)) {
+			/*	if (coreId >= 0 && !setThreadCore(coreId)) {
 
 					std::cerr << "Failed to set core affinity for "
 						<< name << " "
@@ -37,7 +37,7 @@ namespace Util {
 
 					failed = true;
 					return;
-				}
+				}*/
 
 			/*	std::cout << "Successfully set core affinity for "
 					<< name << " "
@@ -52,10 +52,10 @@ namespace Util {
 
 			std::thread* t = new std::thread(tBody);
 
-			using namespace std::chrono_literals;
+			/*using namespace std::chrono_literals;
 			while (!running && !failed) {
 				std::this_thread::sleep_for(1s);
-			}
+			}*/
 
 			if (failed) {
 				t->join();

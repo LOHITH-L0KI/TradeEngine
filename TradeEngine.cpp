@@ -106,6 +106,7 @@ int main()
         while (!queue->push(*(t[index])));
 
         std::cout << "W_" << index << ":: " << t[index]->i << '\n';
+        for(int j = 0; j < 8; ++j)
         Log::Debug("W_{0}:: {1}", index, t[index]->i);
 
         if (counter->fetch_sub(1, std::memory_order_acq_rel) == 1) {
@@ -130,7 +131,8 @@ int main()
     std::vector<std::thread*> wTs(20, nullptr);
 
     for (int i = 0; i < 20; i++) {
-        wTs[i] = Thread::createAndStartThread(1, "W_" + std::to_string(i), writer, i);
+        int j = i;
+        wTs[i] = Thread::createAndStartThread(1, "W_" + std::to_string(i), writer, std::move(j));
     }
 
     
