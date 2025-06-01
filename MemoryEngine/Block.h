@@ -9,8 +9,8 @@ namespace Mem {
 	{
 	public:
 		enum Type {
-			USED,
-			FREE
+			FREE,
+			USED
 		};
 
 	public:
@@ -27,6 +27,9 @@ namespace Mem {
 		void SetGlobalPrev(Block* blk);
 
 		Block* GetGlobalNext();
+
+		void SetHeapIndex(size_t idx);
+		size_t GetHeapIndex();
 
 		size_t GetSize() const;
 		void SetSize(size_t size);

@@ -1,13 +1,20 @@
+#include "pch.h"
 #include "Heap.h"
 #include "Used.h"
 #include "DynamicBlockHeap.h"
 #include "FixedBlockHeap.h"
+#include "HeapTable.h"
 #include <new>
 #include <cassert>
 
 namespace Mem {
 
 	constexpr size_t USED_HEADERS_EXTRA_SPACE = 100 * sizeof(Used);
+
+	Heap::~Heap()
+	{
+		free(_allocator);
+	}
 
 	Heap::Heap(format fmt , size_t heapSize)
 		:Heap(format::dynamic_blocks, heapSize, align::def)
@@ -20,7 +27,11 @@ namespace Mem {
 		void* mem = malloc(heapSize + sizeof(DynamicBlockHeap));
 		assert(mem);
 
-		_allocator = new(mem)DynamicBlockHeap(heapSize);
+		//update HeapTable.
+		size_t index = HeapTable::Add(this);
+		if(index != HeapTable::npos)
+		_allocator = new(mem)DynamicBlockHeap(heapSize, index);
+		//HeapTable::Update(index, _allocator);
 	}
 
 	Heap::Heap(format fmt, size_t blockSize, size_t blockCount)
@@ -36,21 +47,33 @@ namespace Mem {
 		void* mem = malloc(heapSize + sizeof(FixedBlockHeap));
 		assert(mem);
 
-		_allocator = new(mem)FixedBlockHeap(blockSize, blockCount);
+		//update HeapTable.
+		size_t index = HeapTable::Add(this);
+		if (index != HeapTable::npos)
+		_allocator = new(mem)FixedBlockHeap(blockSize, blockCount, index);
+		//HeapTable::Update(index, _allocator);
 	}
 
 	void* Heap::allocate(size_t size)
 	{
 		void* addr = nullptr;
-		addr = _allocator->allocate(size);
 
-		if (addr) {
+		size_t unalignedBytes = size % _info.heapAlign;
+		size_t bytesToAlign = unalignedBytes == 0 ? 0 : _info.heapAlign - unalignedBytes;
+		size_t alignedSize = size + bytesToAlign;
+
+		Used* usdBlk = _allocator->allocate(alignedSize);
+
+		if (usdBlk) {
 			
-			_info.freeSize -= size;
-			_info.usedSize += size;
+			_info.freeSize -= alignedSize;
+			_info.usedSize += alignedSize;
 			_info.currUsedBlocks++;
 			if(_info.currUsedBlocks > _info.maxUsedBlocks)
 				_info.maxUsedBlocks = _info.currUsedBlocks;
+
+			//update object pointer to have only requested space by user.
+			addr = (void*)((char*)usdBlk + sizeof(Used) + bytesToAlign);
 		}
 		else {
 
@@ -60,7 +83,7 @@ namespace Mem {
 		return addr;
 	}
 
-	void Heap::free(void* addr)
+	void Heap::release(void* addr)
 	{
 		//check if this is a valid address
 		size_t heapBeg = (size_t)((void*)_allocator);

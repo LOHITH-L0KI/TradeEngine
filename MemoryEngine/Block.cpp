@@ -21,13 +21,13 @@ namespace Mem {
 #define GET_SIZE(x) ((x >> 4) & ((1ull << 30) - 1))
 #define SET_SIZE(x, size) x = ( (x & ((~((1ull << 34) - 1)) | (~((1ull << 4) - 1)))) | (size << 4))
 
-#define GET_TYPE(x) ((x >> 1) & 0x1)
-#define SET_TO_USED(x) x |= 0x2
-#define SET_TO_FREE(x) x &= ~(0x2)
+#define GET_TYPE(x) ((x >> 1) & 0x1ull)
+#define SET_TO_USED(x) x |= 0x2ull
+#define SET_TO_FREE(x) x &= ~(0x2ull)
 
-#define IS_ABOVE_FREE(x) (bool)(x & 0x1)
-#define SET_ABOVE_FREE(x) x |= 0x1
-#define SET_ABOVE_USED(x) x &= ~(0x1)
+#define IS_ABOVE_FREE(x) (bool)(x & 0x1ull)
+#define SET_ABOVE_FREE(x) x |= 0x1ull
+#define SET_ABOVE_USED(x) x &= ~(0x1ull)
 
 // _nav - offset to type specific prev and next. 
 //-------------------------------- 
@@ -84,12 +84,15 @@ namespace Mem {
 
 	void Block::SetNext(Block* blk)
 	{
-		size_t heapIndex = GET_HEAP_INDEX(_nav)
-		size_t heapaddr = HeapTable::GetAddress(heapIndex);
+		if (blk) {
+			size_t heapIndex = GET_HEAP_INDEX(_nav)
+			size_t heapaddr = HeapTable::GetAddress(heapIndex);
 
-		if (heapaddr != HeapTable::npos) {
-			SET_NEXT_OFFSET(_nav, (size_t)blk - heapaddr);
-		}
+			if (heapaddr != HeapTable::npos) {
+				SET_NEXT_OFFSET(_nav, (size_t)blk - heapaddr);
+			}
+		}else
+			SET_NEXT_OFFSET(_nav, 0ul);
 	}
 
 	Block* Block::GetPrev()
@@ -100,7 +103,7 @@ namespace Mem {
 		if (prevOffSet > 0) {
 
 			size_t heapIndex = GET_HEAP_INDEX(_nav)
-				size_t addr = HeapTable::GetAddress(heapIndex) + prevOffSet;
+			size_t addr = HeapTable::GetAddress(heapIndex) + prevOffSet;
 
 			if (addr != prevOffSet)
 				prev = (Block*)(addr);
@@ -111,12 +114,16 @@ namespace Mem {
 
 	void Block::SetPrev(Block* blk)
 	{
-		size_t heapIndex = GET_HEAP_INDEX(_nav)
-		size_t heapaddr = HeapTable::GetAddress(heapIndex);
+		if (blk) {
+			size_t heapIndex = GET_HEAP_INDEX(_nav)
+			size_t heapaddr = HeapTable::GetAddress(heapIndex);
 
-		if (heapaddr != HeapTable::npos) {
-			SET_PREV_OFFSET(_nav, (size_t)blk - heapaddr);
+			if (heapaddr != HeapTable::npos) {
+				SET_PREV_OFFSET(_nav, (size_t)blk - heapaddr);
+			}
 		}
+		else
+			SET_PREV_OFFSET(_nav, 0ul);
 	}
 
 	Block* Block::GetGlobalPrev()
@@ -137,7 +144,10 @@ namespace Mem {
 
 	void Block::SetGlobalPrev(Block* blk)
 	{
-		SET_GLOBAL_PREV_OFFSET(_magic, (size_t)this - (size_t)blk);
+		if(blk)
+			SET_GLOBAL_PREV_OFFSET(_magic, (size_t)this - (size_t)blk);
+		else
+			SET_GLOBAL_PREV_OFFSET(_magic, 0ull);
 	}
 
 	Block* Block::GetGlobalNext()
@@ -157,6 +167,16 @@ namespace Mem {
 		return gNext;
 	}
 
+	void Block::SetHeapIndex(size_t idx)
+	{
+		SET_HEAP_INDEX(_nav, idx);
+	}
+
+	size_t Block::GetHeapIndex()
+	{
+		return GET_HEAP_INDEX(_nav);
+	}
+
 	size_t Block::GetSize() const
 	{
 		return GET_SIZE(_magic);
@@ -169,7 +189,9 @@ namespace Mem {
 
 	Block::Type Block::GetType() const
 	{
-		return (Block::Type)(GET_TYPE(_magic));
+		Block::Type type = static_cast<Block::Type>(GET_TYPE(_magic));
+
+		return type;
 	}
 
 	void Block::SetToUsed()

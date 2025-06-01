@@ -153,6 +153,9 @@
     <ProjectReference Include="..\Logger\Logger.vcxproj">
       <Project>{21e00125-c2b3-430d-84b7-6db9e78a335c}</Project>
     </ProjectReference>
+    <ProjectReference Include="MemoryEngine\MemoryEngine.vcxproj">
+      <Project>{db86b9e6-ece1-497c-b296-421ee171a9ae}</Project>
+    </ProjectReference>
     <ProjectReference Include="Utilities\Utilities.vcxproj">
       <Project>{3644deea-8c6d-416e-81a4-6621cfb21c29}</Project>
     </ProjectReference>

@@ -1,14 +1,17 @@
+#include "pch.h"
 #include "DynamicBlockHeap.h"
 #include <malloc.h>
 #include <new>
 
 namespace Mem {
 
-    DynamicBlockHeap::DynamicBlockHeap(size_t size)
+    DynamicBlockHeap::DynamicBlockHeap(size_t size, size_t heapIndex)
+        :HeapAllocator(heapIndex)
     {
         Free* mem = (Free*)(this + 1);
         if (size > sizeof(Free)) {
             _header.freeHead = new(mem) Free(size - sizeof(Free));
+            _header.freeHead->SetHeapIndex(heapIndex);
             _header.freeHead->SetAboveUsed();
         }
 
@@ -19,25 +22,9 @@ namespace Mem {
     {
     }
 
-    void* DynamicBlockHeap::allocate(size_t size)
+    Used* DynamicBlockHeap::allocate(size_t size)
     {
-        void* addr = nullptr;
-
-        //find free space using nextfit
-        Block* nxtFit = _header.nextFit;
-
-        if (nxtFit->GetSize() < size) {
-
-            nxtFit = nxtFit->GetNext();
-            
-            while (nxtFit != _header.nextFit && nxtFit->GetSize() < size) {
-                nxtFit = nxtFit->GetNext();
-            }
-
-        }
-
-        if (!(nxtFit->GetSize() < size) && (nxtFit->GetType() == Block::Type::FREE))
-            addr = getRequiredSizedBlock(nxtFit, size);
+        Used* addr = allocateFromNextFit(size);
 
         return addr;
     }
@@ -47,25 +34,50 @@ namespace Mem {
 
     }
 
-    void* DynamicBlockHeap::getRequiredSizedBlock(Block* nxtFit, size_t reqSize)
+    Used* DynamicBlockHeap::allocateFromNextFit(size_t reqSize)
     {
-        void* blk = nullptr;
+        Used* allocAddr = nullptr;
+        //find free space using nextfit
+        Block* nxtFit = _header.nextFit;
 
-        size_t nxtSize = nxtFit->GetSize();
+        if (nxtFit->GetSize() < reqSize) {
 
-        //allocate only required size
-        size_t extraSize = nxtSize - reqSize;
+            nxtFit = nxtFit->GetNext();
 
-        //no use of just having a headder with no space for data
+            while (nxtFit != _header.nextFit && nxtFit->GetSize() < reqSize) {
+                nxtFit = nxtFit->GetNext();
+            }
+
+        }
+
+        //found nextfit. Check if it has enough space to accomidate requested size. 
+        size_t availSize = nxtFit->GetSize();
+        if ((nxtFit->GetType() == Block::Type::FREE) && (availSize >= reqSize)) {
+            
+            _header.nextFit = (Free*)nxtFit;
+            
+            adjustNextFitToAllocate(reqSize);
+            allocAddr = updateNextFitToUsedBlock();
+        }
+
+        return allocAddr;
+    }
+
+    void DynamicBlockHeap::adjustNextFitToAllocate(size_t reqSize)
+    {
+        Block* nxtFit = _header.nextFit;
+
+        size_t extraSize = nxtFit->GetSize() - reqSize;
         if (extraSize > sizeof(Block)) {
             //split the block into 2 parts
-            //update the free pointer
 
+            //update the free pointer
             Free* newFree = (Free*)((size_t)(nxtFit + 1) + reqSize);
             //Basic Stats
             newFree->SetSize(extraSize - sizeof(Block));
             newFree->SetToFree();
-            newFree->SetAboveUsed();
+            newFree->SetAboveFree();
+            newFree->SetHeapIndex(nxtFit->GetHeapIndex());
 
             //Global Pointers
             newFree->SetGlobalPrev(nxtFit);
@@ -75,32 +87,54 @@ namespace Mem {
             }
 
             //Type Specific Pointers
-            Block* prev = nxtFit->GetPrev();
+            newFree->SetPrev(nxtFit);
+
             Block* next = nxtFit->GetNext();
-
-            if (prev) {
-                newFree->SetPrev(prev);
-                prev->SetNext(newFree);
-            }
-
             if (next) {
                 newFree->SetNext(next);
                 next->SetPrev(newFree);
             }
 
-            //make a Used Block
+            nxtFit->SetNext(newFree);
+
+            //update the next fit size
             nxtFit->SetSize(reqSize);
         }
+    }
 
-        nxtFit->SetToUsed();
+    Used* DynamicBlockHeap::updateNextFitToUsedBlock()
+    {
+        Block* nxtFit = _header.nextFit;
 
-        if (_header.usedHead) {
-            nxtFit->SetNext(_header.usedHead);
-            _header.usedHead->SetPrev(nxtFit);
+        if (nxtFit != nullptr) {
+            
+            //point nextfit to next available free block
+            _header.nextFit = (Free*)nxtFit->GetNext();
+
+            //update freeblock to used
+            nxtFit->SetToUsed();
+
+            //update next and prev offset
+            Block* prev = nxtFit->GetPrev();
+            Block* next = nxtFit->GetNext();
+
+            if (prev)
+                prev->SetNext(next);
+
+            if (next)
+                next->SetPrev(prev);
+
+            //used block next and prev offset.
+            nxtFit->SetPrev(nullptr);
+            if (_header.usedHead) {
+                nxtFit->SetNext(_header.usedHead);
+                _header.usedHead->SetPrev(nxtFit);
+            }
+
+            _header.usedHead = (Used*)nxtFit;
         }
 
-        _header.usedHead = (Used*)nxtFit;
-
-        return _header.usedHead;
+        return (Used*)nxtFit;
     }
+
 }

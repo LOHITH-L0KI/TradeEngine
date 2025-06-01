@@ -1,13 +1,19 @@
+#include "pch.h"
 #include "FixedBlockHeap.h"
 
 namespace Mem {
     
-    FixedBlockHeap::FixedBlockHeap(size_t blockSize, size_t blockCount)
+    FixedBlockHeap::FixedBlockHeap(size_t blockSize, size_t blockCount, size_t heapIndex)
+        :HeapAllocator(heapIndex)
     {
 
     }
 
-    void* FixedBlockHeap::allocate(size_t size)
+    FixedBlockHeap::~FixedBlockHeap()
+    {
+    }
+
+    Used* FixedBlockHeap::allocate(size_t size)
     {
         return nullptr;
     }

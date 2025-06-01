@@ -12,18 +12,19 @@ namespace Mem {
 		DynamicBlockHeap(const DynamicBlockHeap&) = delete;
 		DynamicBlockHeap& operator= (const DynamicBlockHeap&) = delete;
 
-		DynamicBlockHeap(size_t size);
+		DynamicBlockHeap(size_t size, size_t heapIndex);
 		~DynamicBlockHeap();
 
 	public:
 		// Inherited via HeapAllocator
-		void* allocate(size_t size) override;
+		Used* allocate(size_t size) override;
 		void free(Used* addr) override;
 
 	private:
 
-		void* getRequiredSizedBlock(Block* nxtFit, size_t reqSize);
-		
+		Used* allocateFromNextFit(size_t reqSize);
+		void adjustNextFitToAllocate(size_t reqSize);
+		Used* updateNextFitToUsedBlock();
 	};
 }
 

@@ -6,9 +6,11 @@
 #include "LFC_Queue.h"
 #include "Thread_Util.h"
 #include "Logger.h"
+#include "MemoryEngine\Heap.h"
 
 using namespace Util;
 using namespace Logger;
+using namespace Mem;
 
 struct Test{
 
@@ -40,9 +42,50 @@ int main()
 
     std::cout << "TradeEngine\n";
     Log::Info("TradeEngine");
+    
+    //----------------------------------------------------------------------------
+    /*                              MEMORY MANAGER                              */
+    //----------------------------------------------------------------------------
+    Heap* heap = new Heap(Heap::format::dynamic_blocks, 1024, Heap::align::byte4);
+    Heap::Info info;
+    
+    heap->status(info);
+    std::cout << "-------------Heap Status------------\n";
+    std::cout << "ToatalSize - " << info.totalSize << std::endl;
+    std::cout << "UsedSize - " << info.usedSize << std::endl;
+    std::cout << "FreeSize - " << info.freeSize << std::endl;
+    std::cout << "CurrUsedBlocks - " << info.currUsedBlocks << std::endl;
+    std::cout << "MaxUsedBlocks - " << info.maxUsedBlocks << std::endl;
+    std::cout << "ALignment - " << info.heapAlign << "bytes" << std::endl;
+    std::cout << "-------------------------------------\n\n";
 
+    void* A = heap->allocate(12);
+    heap->status(info);
+    std::cout << "-------------Heap Status------------\n";
+    std::cout << "ToatalSize - " << info.totalSize << std::endl;
+    std::cout << "UsedSize - " << info.usedSize << std::endl;
+    std::cout << "FreeSize - " << info.freeSize << std::endl;
+    std::cout << "CurrUsedBlocks - " << info.currUsedBlocks << std::endl;
+    std::cout << "MaxUsedBlocks - " << info.maxUsedBlocks << std::endl;
+    std::cout << "ALignment - " << info.heapAlign << "bytes" << std::endl;
+    std::cout << "-------------------------------------\n\n";
 
-    //POOL TESTING
+    void* B = heap->allocate(7);
+    heap->status(info);
+    std::cout << "-------------Heap Status------------\n";
+    std::cout << "ToatalSize - " << info.totalSize << std::endl;
+    std::cout << "UsedSize - " << info.usedSize << std::endl;
+    std::cout << "FreeSize - " << info.freeSize << std::endl;
+    std::cout << "CurrUsedBlocks - " << info.currUsedBlocks << std::endl;
+    std::cout << "MaxUsedBlocks - " << info.maxUsedBlocks << std::endl;
+    std::cout << "ALignment - " << info.heapAlign << "bytes" << std::endl;
+    std::cout << "-------------------------------------\n\n";
+
+    delete heap;
+
+    //----------------------------------------------------------------------------
+    /*                              POOL                                        */
+    //----------------------------------------------------------------------------
     Pool<Test_I, 100> *tPool = new Pool<Test_I, 100>();
     std::vector<Test_I*> t(20, nullptr);
 
@@ -53,7 +96,9 @@ int main()
         Log::Debug("Address:: {0}", (void*)t[i]);
     }
 
-    //LFC_Queue TESTING
+   //----------------------------------------------------------------------------
+   /*                              LFC_QUEUE                                   */
+   //----------------------------------------------------------------------------
    const size_t queueSize = 1 << 3;
     LFC_Queue<Test_I, queueSize>* queue = new LFC_Queue<Test_I, queueSize>();
     std::atomic_bool* kill = new std::atomic_bool(false);

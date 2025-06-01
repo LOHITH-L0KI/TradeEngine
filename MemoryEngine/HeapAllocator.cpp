@@ -4,7 +4,7 @@
 
 namespace Mem {
 	
-	HeapAllocator::HeapAllocator()
+	HeapAllocator::HeapAllocator(size_t heapIndex)
 		:_header()
 	{
 	}

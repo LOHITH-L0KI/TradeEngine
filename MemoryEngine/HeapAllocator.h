@@ -4,12 +4,14 @@
 #include "Used.h"
 #include "Free.h"
 
+class Heap;
 namespace Mem {
 
 	class HeapAllocator
 	{
 		struct Header {
 
+			Heap* heap;
 			Used* usedHead;
 			Free* freeHead;
 			Free* nextFit;
@@ -22,13 +24,15 @@ namespace Mem {
 		};
 
 	public:
-		HeapAllocator();
+		HeapAllocator() = delete;
 		HeapAllocator(const HeapAllocator&) = delete;
 		HeapAllocator& operator = (const HeapAllocator&) = delete;
 
+		HeapAllocator(size_t heapIndex);
+
 		virtual ~HeapAllocator();
 
-		virtual void* allocate(size_t size) = 0;
+		virtual Used* allocate(size_t size) = 0;
 		virtual void free(Used* addr) = 0;
 
 	protected:

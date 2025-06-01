@@ -1,5 +1,6 @@
 #ifndef HEAP_H
 #define HEAP_H
+#include <cstdint>
 
 namespace Mem {
 
@@ -12,13 +13,14 @@ class HeapAllocator;
 	/// </summary>
 	class Heap
 	{
-		enum align : uint8_t {
-			byte4,
-			byte8,
-			byte16,
-			byte32,
-			byte64,
-			byte128,
+	public:
+		enum align : uint32_t {
+			byte4 = 4,
+			byte8 = 8,
+			byte16 = 16,
+			byte32 = 32,
+			byte64 = 64,
+			byte128 = 128,
 			def = byte4
 		};
 
@@ -38,7 +40,15 @@ class HeapAllocator;
 			size_t maxUsedBlocks;
 			align  heapAlign;
 
-			Info() = delete;
+			Info()
+				:totalSize(0),
+				usedSize(0),
+				freeSize(0),
+				currUsedBlocks(0),
+				maxUsedBlocks(0),
+				heapAlign(align::def)
+			{}
+
 			Info(size_t heapSize, align align)
 				:totalSize(heapSize),
 				usedSize(0),
@@ -55,6 +65,8 @@ class HeapAllocator;
 		Heap(const Heap&) = delete;
 		Heap& operator =(const Heap&) = delete;
 
+		~Heap();
+
 		//Should provide heap size and heap type
 		//Dynamic block heap
 		Heap(format fmt, size_t heapSize);
@@ -67,7 +79,7 @@ class HeapAllocator;
 	public:
 
 		void* allocate(size_t size);
-		void free(void* addr);
+		void release(void* addr);
 		size_t size();
 		size_t end();
 		void status(Info& status);

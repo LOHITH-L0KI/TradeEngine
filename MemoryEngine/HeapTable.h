@@ -1,10 +1,8 @@
 #ifndef HEAP_TABLE_H
 #define HEAP_TABLE_H
-#include <cstdint>
 
 namespace Mem {
 
-	class Heap;
 	constexpr size_t TABLE_SIZE = 15;
 	
 	class HeapTable
@@ -12,7 +10,7 @@ namespace Mem {
 	public:
 		static constexpr size_t npos = 0;
 
-		static size_t Add(Heap* addr) {
+		static size_t Add(void* addr) {
 
 			size_t index = 0;
 			while (index < TABLE_SIZE && table[index] != 0) {
@@ -21,10 +19,17 @@ namespace Mem {
 
 			if (index < TABLE_SIZE) {
 				table[index] = size_t(addr);
-				return table[index];
+				return index + 1;
 			}
 
 			return npos;
+		}
+
+		static void Update(size_t index, void* addr) {
+
+			if (index < TABLE_SIZE) {
+				table[index] = size_t(addr);
+			}
 		}
 
 		static size_t GetAddress(size_t index) {
@@ -32,7 +37,7 @@ namespace Mem {
 			size_t addr = npos;
 
 			if (index > 0 && index <= TABLE_SIZE) {
-				addr = table[index];
+				addr = table[index - 1];
 			}
 
 			return addr;
