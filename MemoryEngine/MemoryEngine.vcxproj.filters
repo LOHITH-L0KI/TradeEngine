@@ -51,6 +51,12 @@
     <ClInclude Include="HeapTable.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="AllocationStartegy.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="NextFitStrategy.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="MemoryEngine.cpp">
@@ -87,6 +93,12 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="HeapTable.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="AllocationStartegy.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="NextFitStrategy.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

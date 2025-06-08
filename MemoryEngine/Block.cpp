@@ -1,7 +1,7 @@
 #include "pch.h"
 #include "Block.h"
 #include "HeapTable.h"
-#include "Heap.h"
+#include "HeapAllocator.h"
 
 namespace Mem {
 
@@ -19,7 +19,8 @@ namespace Mem {
 #define SET_GLOBAL_PREV_OFFSET(x, off) x = ((x & ((1ull << 34) - 1)) | (off << 34))
 
 #define GET_SIZE(x) ((x >> 4) & ((1ull << 30) - 1))
-#define SET_SIZE(x, size) x = ( (x & ((~((1ull << 34) - 1)) | (~((1ull << 4) - 1)))) | (size << 4))
+//#define SET_SIZE(x, size) x = ( (x & ((~((1ull << 34) - 1)) | (~((1ull << 4) - 1)))) | (size << 4))
+#define SET_SIZE(x, size) x = ((x & (~(((1ull << 30) - 1) << 4))) | (size << 4))
 
 #define GET_TYPE(x) ((x >> 1) & 0x1ull)
 #define SET_TO_USED(x) x |= 0x2ull
@@ -38,13 +39,13 @@ namespace Mem {
 //	next Offset			|	29 - 0 
 
 #define GET_HEAP_INDEX(x) (x >> 60);
-#define SET_HEAP_INDEX(x, index) x = (x & (~((1ull << 60) - 1))) | index << 60
+#define SET_HEAP_INDEX(x, index) x = ((x & ((1ull << 60) - 1)) | (index << 60))
 
 #define GET_NEXT_OFFSET(x) (x & ((1ull << 30) - 1))
-#define SET_NEXT_OFFSET(x, offset) x = (x & (~((1ull << 30) - 1))) | offset
+#define SET_NEXT_OFFSET(x, offset) x = ((x & (~((1ull << 30) - 1))) | offset)
 
 #define GET_PREV_OFFSET(x) ((x >> 30) &  ((1ull << 30) - 1))
-#define SET_PREV_OFFSET(x, offset) x = ((x & (((1ull << 30) - 1) | (~((1ull << 60) - 1)))) | (offset << 30))
+#define SET_PREV_OFFSET(x, offset) x = ((x & (~(((1ull << 30) - 1) << 30))) | (offset << 30))
 
 	Block::Block()
 		:_magic(0),
@@ -119,7 +120,7 @@ namespace Mem {
 			size_t heapaddr = HeapTable::GetAddress(heapIndex);
 
 			if (heapaddr != HeapTable::npos) {
-				SET_PREV_OFFSET(_nav, (size_t)blk - heapaddr);
+				SET_PREV_OFFSET(_nav, ((size_t)blk) - heapaddr);
 			}
 		}
 		else
@@ -145,7 +146,7 @@ namespace Mem {
 	void Block::SetGlobalPrev(Block* blk)
 	{
 		if(blk)
-			SET_GLOBAL_PREV_OFFSET(_magic, (size_t)this - (size_t)blk);
+			SET_GLOBAL_PREV_OFFSET(_magic, ((size_t)this) - (size_t)blk);
 		else
 			SET_GLOBAL_PREV_OFFSET(_magic, 0ull);
 	}
@@ -157,11 +158,13 @@ namespace Mem {
 		size_t heapAddr = HeapTable::GetAddress(heapIndex);
 
 		if (heapAddr != HeapTable::npos) {
-			Heap* heap = (Heap*)(heapAddr);
-			size_t gNextAddr = (size_t)(this + 1) + GET_SIZE(_magic);
+			if (HeapAllocator* heapAlloc = (HeapAllocator*)(heapAddr)) {
+				Heap* heap = heapAlloc->getHeap();
+				size_t gNextAddr = (size_t)(this + 1) + GET_SIZE(_magic);
 
-			if (gNextAddr < heap->end())
-				gNext = (Block*)(gNextAddr);
+				if (heap && gNextAddr < heap->end())
+					gNext = (Block*)(gNextAddr);
+			}
 		}
 
 		return gNext;

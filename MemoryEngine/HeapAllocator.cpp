@@ -1,15 +1,21 @@
 #include "pch.h"
 #include "HeapAllocator.h"
-#include "Free.h"
+#include "Heap.h"
 
 namespace Mem {
 	
-	HeapAllocator::HeapAllocator(size_t heapIndex)
+	HeapAllocator::HeapAllocator(Heap* heap, size_t heapIndex)
 		:_header()
 	{
+		_header.heap = heap;
 	}
 
 	HeapAllocator::~HeapAllocator()
 	{
+	}
+
+	Heap* HeapAllocator::getHeap()
+	{
+		return _header.heap;
 	}
 }

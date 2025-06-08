@@ -47,39 +47,18 @@ int main()
     /*                              MEMORY MANAGER                              */
     //----------------------------------------------------------------------------
     Heap* heap = new Heap(Heap::format::dynamic_blocks, 1024, Heap::align::byte4);
-    Heap::Info info;
-    
-    heap->status(info);
-    std::cout << "-------------Heap Status------------\n";
-    std::cout << "ToatalSize - " << info.totalSize << std::endl;
-    std::cout << "UsedSize - " << info.usedSize << std::endl;
-    std::cout << "FreeSize - " << info.freeSize << std::endl;
-    std::cout << "CurrUsedBlocks - " << info.currUsedBlocks << std::endl;
-    std::cout << "MaxUsedBlocks - " << info.maxUsedBlocks << std::endl;
-    std::cout << "ALignment - " << info.heapAlign << "bytes" << std::endl;
-    std::cout << "-------------------------------------\n\n";
+
+    std::cout << "New Heap\n";
+    heap->printHeapFragmentation();
 
     void* A = heap->allocate(12);
-    heap->status(info);
-    std::cout << "-------------Heap Status------------\n";
-    std::cout << "ToatalSize - " << info.totalSize << std::endl;
-    std::cout << "UsedSize - " << info.usedSize << std::endl;
-    std::cout << "FreeSize - " << info.freeSize << std::endl;
-    std::cout << "CurrUsedBlocks - " << info.currUsedBlocks << std::endl;
-    std::cout << "MaxUsedBlocks - " << info.maxUsedBlocks << std::endl;
-    std::cout << "ALignment - " << info.heapAlign << "bytes" << std::endl;
-    std::cout << "-------------------------------------\n\n";
+
+    std::cout << "Allocate:: 12 Bytes\n";
+    heap->printHeapFragmentation();
 
     void* B = heap->allocate(7);
-    heap->status(info);
-    std::cout << "-------------Heap Status------------\n";
-    std::cout << "ToatalSize - " << info.totalSize << std::endl;
-    std::cout << "UsedSize - " << info.usedSize << std::endl;
-    std::cout << "FreeSize - " << info.freeSize << std::endl;
-    std::cout << "CurrUsedBlocks - " << info.currUsedBlocks << std::endl;
-    std::cout << "MaxUsedBlocks - " << info.maxUsedBlocks << std::endl;
-    std::cout << "ALignment - " << info.heapAlign << "bytes" << std::endl;
-    std::cout << "-------------------------------------\n\n";
+    std::cout << "Allocate:: 7 Bytes\n";
+    heap->printHeapFragmentation();
 
     delete heap;
 

@@ -84,6 +84,8 @@ class HeapAllocator;
 		size_t end();
 		void status(Info& status);
 
+		void printHeapFragmentation();
+
 	private:
 		Info _info;
 		HeapAllocator* _allocator;

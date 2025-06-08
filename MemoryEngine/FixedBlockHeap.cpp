@@ -3,8 +3,8 @@
 
 namespace Mem {
     
-    FixedBlockHeap::FixedBlockHeap(size_t blockSize, size_t blockCount, size_t heapIndex)
-        :HeapAllocator(heapIndex)
+    FixedBlockHeap::FixedBlockHeap(Heap* heap, size_t blockSize, size_t blockCount, size_t heapIndex)
+        :HeapAllocator(heap, heapIndex)
     {
 
     }

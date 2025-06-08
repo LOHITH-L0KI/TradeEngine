@@ -6,10 +6,15 @@
 #include "HeapTable.h"
 #include <new>
 #include <cassert>
+#include <iostream>
 
 namespace Mem {
 
 	constexpr size_t USED_HEADERS_EXTRA_SPACE = 100 * sizeof(Used);
+
+	struct HeapGaurd {
+		Used rGlobalHead;
+	};
 
 	Heap::~Heap()
 	{
@@ -22,16 +27,22 @@ namespace Mem {
 	}
 
 	Heap::Heap(format fmt, size_t heapSize, align alignment)
-		:_info(heapSize, alignment)
+		:_info(heapSize, alignment),
+		_allocator(nullptr)
 	{
-		void* mem = malloc(heapSize + sizeof(DynamicBlockHeap));
+		void* mem = malloc(heapSize + sizeof(DynamicBlockHeap) + sizeof(HeapGaurd));
 		assert(mem);
 
 		//update HeapTable.
-		size_t index = HeapTable::Add(this);
+		size_t index = HeapTable::Add(mem);
 		if(index != HeapTable::npos)
-		_allocator = new(mem)DynamicBlockHeap(heapSize, index);
-		//HeapTable::Update(index, _allocator);
+		_allocator = new(mem)DynamicBlockHeap(this, heapSize, index);
+		HeapTable::Update(index, _allocator);
+
+		//set heap gaurd at the end of allocator
+		void* allocEnd = (void*)((size_t)(_allocator + 1) + heapSize);
+		HeapGaurd* gaurd = new(allocEnd) HeapGaurd();
+		gaurd->rGlobalHead.SetGlobalPrev((Block*)(_allocator + 1));
 	}
 
 	Heap::Heap(format fmt, size_t blockSize, size_t blockCount)
@@ -40,7 +51,8 @@ namespace Mem {
 	}
 
 	Heap::Heap(format fmt, size_t blockSize, size_t blockCount, align alignment)
-		:_info(blockSize * blockCount, alignment)
+		:_info(blockSize * blockCount, alignment),
+		_allocator(nullptr)
 	{
 		size_t heapSize = blockSize * blockCount;
 
@@ -48,10 +60,15 @@ namespace Mem {
 		assert(mem);
 
 		//update HeapTable.
-		size_t index = HeapTable::Add(this);
+		size_t index = HeapTable::Add(mem);
 		if (index != HeapTable::npos)
-		_allocator = new(mem)FixedBlockHeap(blockSize, blockCount, index);
-		//HeapTable::Update(index, _allocator);
+		_allocator = new(mem)FixedBlockHeap(this, blockSize, blockCount, index);
+		HeapTable::Update(index, _allocator);
+
+		//set heap gaurd at the end of allocator
+		void* allocEnd = (void*)((size_t)(_allocator + 1) + heapSize);
+		HeapGaurd* gaurd = new(allocEnd) HeapGaurd();
+		gaurd->rGlobalHead.SetGlobalPrev((Block*)(_allocator + 1));
 	}
 
 	void* Heap::allocate(size_t size)
@@ -123,5 +140,44 @@ namespace Mem {
 	void Heap::status(Info& status)
 	{
 		status = _info;
+	}
+
+	void Heap::printHeapFragmentation()
+	{
+		std::cout << "-----------Heap Dump :: Begin-----------\n";
+		//Print Heap Stats
+		std::cout << "\tHeap Stats::\n";
+		std::cout << "\t\tToatalSize - " << _info.totalSize << std::endl;
+		std::cout << "\t\tUsedSize - " << _info.usedSize << std::endl;
+		std::cout << "\t\tFreeSize - " << _info.freeSize << std::endl;
+		std::cout << "\t\tCurrUsedBlocks - " << _info.currUsedBlocks << std::endl;
+		std::cout << "\t\tMaxUsedBlocks - " << _info.maxUsedBlocks << std::endl;
+		std::cout << "\t\tALignment - " << _info.heapAlign << "bytes" << std::endl;
+
+		//Print heap fragments (Blocks)
+		Block* heapBegin = (Block*)((size_t)(_allocator + 1));
+		
+		void* allocEnd = (void*)((size_t)(_allocator + 1) + _info.totalSize);
+		HeapGaurd* gaurd = (HeapGaurd*)allocEnd;
+		Block* heapEnd = &gaurd->rGlobalHead;
+		
+		Block* currBlock = heapBegin;
+
+		std::cout << "\tHeap Blocks::\n";
+		std::cout << "\t\t" << "| Type |" << "\t" << "|	Size	|" << std::endl;
+		std::cout << "\t\t" << "------------------------------------" << std::endl;
+
+		while (currBlock && currBlock != heapEnd) {
+
+			std::cout << "\t\t"
+				<< "| " << (currBlock->GetType() == Block::FREE ?"FREE" : "USED") << " |"
+				<< "\t"
+				<< "| " << currBlock->GetSize() << " |"
+				<< std::endl;
+
+			currBlock = currBlock->GetGlobalNext();
+		}
+
+		std::cout << "-----------Heap Dump :: End-----------\n";
 	}
 }

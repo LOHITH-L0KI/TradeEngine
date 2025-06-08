@@ -12,7 +12,7 @@ namespace Mem {
 		FixedBlockHeap(const FixedBlockHeap&) = delete;
 		FixedBlockHeap& operator=(const FixedBlockHeap&) = delete;
 
-		FixedBlockHeap(size_t blockSize, size_t blockCount, size_t heapIndex);
+		FixedBlockHeap(Heap* heap, size_t blockSize, size_t blockCount, size_t heapIndex);
 		~FixedBlockHeap();
 
 	public:

@@ -12,7 +12,7 @@ namespace Mem {
 		DynamicBlockHeap(const DynamicBlockHeap&) = delete;
 		DynamicBlockHeap& operator= (const DynamicBlockHeap&) = delete;
 
-		DynamicBlockHeap(size_t size, size_t heapIndex);
+		DynamicBlockHeap(Heap* heap, size_t size, size_t heapIndex);
 		~DynamicBlockHeap();
 
 	public:
@@ -22,9 +22,7 @@ namespace Mem {
 
 	private:
 
-		Used* allocateFromNextFit(size_t reqSize);
-		void adjustNextFitToAllocate(size_t reqSize);
-		Used* updateNextFitToUsedBlock();
+		Used* makeFreeToUsedBlock(Free* freeBlk);
 	};
 }
 
