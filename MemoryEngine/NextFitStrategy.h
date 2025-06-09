@@ -1,7 +1,6 @@
 #ifndef NEXT_FIT_STRATEGY_H
 #define NEXT_FIT_STRATEGY_H
 
-
 #include "AllocationStartegy.h"
 
 namespace Mem {
@@ -15,12 +14,14 @@ namespace Mem {
 
         // Inherited via AllocationStrategy
         Free* FindNext(size_t reqSize) override;
+        bool HandleFree(Free* freeBlk) override;
 
     private:
         void splitNextFitToAllocate(size_t reqSize);
 
     public:
         Free* _nextFit;
+
     };
 }
 

@@ -10,8 +10,6 @@
 
 namespace Mem {
 
-	constexpr size_t USED_HEADERS_EXTRA_SPACE = 100 * sizeof(Used);
-
 	struct HeapGaurd {
 		Used rGlobalHead;
 	};
@@ -30,14 +28,16 @@ namespace Mem {
 		:_info(heapSize, alignment),
 		_allocator(nullptr)
 	{
-		void* mem = malloc(heapSize + sizeof(DynamicBlockHeap) + sizeof(HeapGaurd));
+		void* mem = malloc(heapSize + sizeof(DynamicBlockHeap) + sizeof(HeapGaurd) + alignment);
 		assert(mem);
 
+		//align heapallocator.
+		size_t alignedMem = ((size_t)mem + sizeof(DynamicBlockHeap) + sizeof(Block) + alignment - 1) & (~(alignment - 1));
+
 		//update HeapTable.
-		size_t index = HeapTable::Add(mem);
+		size_t index = HeapTable::Add((void*)alignedMem);
 		if(index != HeapTable::npos)
-		_allocator = new(mem)DynamicBlockHeap(this, heapSize, index);
-		HeapTable::Update(index, _allocator);
+		_allocator = new((void*)alignedMem)DynamicBlockHeap(this, heapSize, index);
 
 		//set heap gaurd at the end of allocator
 		void* allocEnd = (void*)((size_t)(_allocator + 1) + heapSize);
@@ -54,16 +54,24 @@ namespace Mem {
 		:_info(blockSize * blockCount, alignment),
 		_allocator(nullptr)
 	{
-		size_t heapSize = blockSize * blockCount;
+		size_t padding = 0;
+		if (size_t predictedNextUserAddr = (blockSize + sizeof(Block)) % alignment) {
+			padding = alignment - predictedNextUserAddr;
+		}
 
-		void* mem = malloc(heapSize + sizeof(FixedBlockHeap));
+		size_t alignedBlockSize = blockSize + padding;
+		size_t heapSize = alignedBlockSize * blockCount;
+
+		void* mem = malloc(heapSize + sizeof(FixedBlockHeap) + sizeof(HeapGaurd) + alignment);
 		assert(mem);
+
+		//align heapallocator.
+		size_t alignedMem = ((size_t)mem + sizeof(FixedBlockHeap) + sizeof(Block) + alignment - 1) & (~(alignment - 1));
 
 		//update HeapTable.
 		size_t index = HeapTable::Add(mem);
 		if (index != HeapTable::npos)
 		_allocator = new(mem)FixedBlockHeap(this, blockSize, blockCount, index);
-		HeapTable::Update(index, _allocator);
 
 		//set heap gaurd at the end of allocator
 		void* allocEnd = (void*)((size_t)(_allocator + 1) + heapSize);
@@ -75,22 +83,20 @@ namespace Mem {
 	{
 		void* addr = nullptr;
 
-		size_t unalignedBytes = size % _info.heapAlign;
-		size_t bytesToAlign = unalignedBytes == 0 ? 0 : _info.heapAlign - unalignedBytes;
-		size_t alignedSize = size + bytesToAlign;
-
-		Used* usdBlk = _allocator->allocate(alignedSize);
+		Used* usdBlk = _allocator->allocate(size);
 
 		if (usdBlk) {
 			
-			_info.freeSize -= alignedSize;
-			_info.usedSize += alignedSize;
+			size_t usedSize = usdBlk->GetSize();
+			_info.freeSize -= usedSize;
+			_info.usedSize += usedSize;
+
 			_info.currUsedBlocks++;
 			if(_info.currUsedBlocks > _info.maxUsedBlocks)
 				_info.maxUsedBlocks = _info.currUsedBlocks;
 
-			//update object pointer to have only requested space by user.
-			addr = (void*)((char*)usdBlk + sizeof(Used) + bytesToAlign);
+			//get pointer to user space.
+			addr = (void*)((char*)usdBlk + sizeof(Used));
 		}
 		else {
 
@@ -104,7 +110,7 @@ namespace Mem {
 	{
 		//check if this is a valid address
 		size_t heapBeg = (size_t)((void*)_allocator);
-		size_t heapEnd =  heapBeg + _info.totalSize + USED_HEADERS_EXTRA_SPACE;
+		size_t heapEnd =  heapBeg + _info.totalSize;
 		size_t addrVal = (size_t)addr;
 		
 		if (addrVal >= heapBeg && addrVal < heapEnd) {
@@ -129,6 +135,11 @@ namespace Mem {
 	size_t Heap::size()
 	{
 		return _info.totalSize;
+	}
+
+	Heap::align Heap::alignement()
+	{
+		return _info.heapAlign;
 	}
 
 	size_t Heap::end()
@@ -164,7 +175,7 @@ namespace Mem {
 		Block* currBlock = heapBegin;
 
 		std::cout << "\tHeap Blocks::\n";
-		std::cout << "\t\t" << "| Type |" << "\t" << "|	Size	|" << std::endl;
+		std::cout << "\t\t" << "| Type |" << "\t" << "|	Size |" << std::endl;
 		std::cout << "\t\t" << "------------------------------------" << std::endl;
 
 		while (currBlock && currBlock != heapEnd) {

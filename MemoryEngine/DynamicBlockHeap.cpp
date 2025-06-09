@@ -28,15 +28,52 @@ namespace Mem {
 
     Used* DynamicBlockHeap::allocate(size_t size)
     {
-        Free* freeBlk = _header.allocStrategy ? _header.allocStrategy->FindNext(size) : nullptr;
-        Used* usedBlk = makeFreeToUsedBlock(freeBlk);
+        //First update the size to include alignment
+        size_t padding = 0;
+        size_t heapAlign = _header.heap->alignement();
 
+        if (size_t predictedNextUserAddr = (size + sizeof(Block)) % heapAlign) {
+            padding = heapAlign - predictedNextUserAddr;
+        }
+
+        size_t alignedSize = size + padding;
+
+        //allocate block with alignedsize.
+        Free* freeBlk = _header.allocStrategy->FindNext(alignedSize);
+        
+        //update if freeHead
+        if (freeBlk == _header.freeHead)
+            _header.freeHead = static_cast<Free*>(freeBlk->GetNext());
+         
+        Used* usedBlk = makeFreeToUsedBlock(freeBlk);
         return usedBlk;
     }
 
-    void DynamicBlockHeap::free(Used* addr)
+    void DynamicBlockHeap::free(Used* usedBlk)
     {
+        //update usedblock pointers and make it free
+        
+        //update neighbours
+        Block* next = usedBlk->GetNext();
+        Block* prev = usedBlk->GetPrev();
 
+        if (next) {
+            next->SetPrev(prev);
+            usedBlk->SetNext(nullptr);
+        }
+
+        if (prev) {
+            prev->SetNext(next);
+            usedBlk->SetPrev(nullptr);
+        }
+
+        //since neighbours are update and this block is excluded from used list,
+        //we can change this block to free. But remenber, it is not yet added to free list
+        Free* freeBlk = (Free*)usedBlk;
+        freeBlk->SetToFree();
+        
+        //send this free block to allocStrategy to handle it.
+        _header.allocStrategy->HandleFree(freeBlk);
     }
 
     Used* DynamicBlockHeap::makeFreeToUsedBlock(Free* freeBlk)

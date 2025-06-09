@@ -90,4 +90,16 @@ namespace Mem {
             nxtFit->SetSize(reqSize);                           //nextFit::Size
         }
     }
+
+    bool NextFitStrategy::HandleFree(Free* freeBlk)
+    {
+        bool handled = false;
+        //check if valid pointer
+        if (!freeBlk)
+            return handled;
+
+
+
+        return handled;
+    }
 }

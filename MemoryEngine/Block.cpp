@@ -19,7 +19,6 @@ namespace Mem {
 #define SET_GLOBAL_PREV_OFFSET(x, off) x = ((x & ((1ull << 34) - 1)) | (off << 34))
 
 #define GET_SIZE(x) ((x >> 4) & ((1ull << 30) - 1))
-//#define SET_SIZE(x, size) x = ( (x & ((~((1ull << 34) - 1)) | (~((1ull << 4) - 1)))) | (size << 4))
 #define SET_SIZE(x, size) x = ((x & (~(((1ull << 30) - 1) << 4))) | (size << 4))
 
 #define GET_TYPE(x) ((x >> 1) & 0x1ull)

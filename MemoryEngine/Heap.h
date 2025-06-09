@@ -15,6 +15,7 @@ class HeapAllocator;
 	{
 	public:
 		enum align : uint32_t {
+			byte1 = 1,
 			byte4 = 4,
 			byte8 = 8,
 			byte16 = 16,
@@ -81,6 +82,7 @@ class HeapAllocator;
 		void* allocate(size_t size);
 		void release(void* addr);
 		size_t size();
+		align alignement();
 		size_t end();
 		void status(Info& status);
 
