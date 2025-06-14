@@ -23,6 +23,10 @@ namespace Mem {
 	private:
 
 		Used* makeFreeToUsedBlock(Free* freeBlk);
+
+
+
+
 	};
 }
 

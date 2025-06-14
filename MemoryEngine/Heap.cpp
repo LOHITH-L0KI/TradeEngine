@@ -69,6 +69,41 @@ namespace Mem {
 		gaurd->rGlobalHead.SetGlobalPrev((Block*)(_allocator + 1));
 	}
 
+#ifdef _MEMORY_TRACK
+	void* Heap::allocate(size_t size, char* fileName, uint32_t lineNum)
+	{
+		void* allocAddr = allocate(size);
+
+		if(allocAddr)
+			_memTracker.insert(allocAddr, fileName, lineNum);
+
+		return allocAddr;
+	}
+
+	void Heap::printLeaks()
+	{
+		std::cout << "****** Memory Tracker Start ******" << std::endl;
+		if (_memTracker._table.empty()) {
+			std::cout << "***** No Memory Leaks *****" << std::endl;
+			return;
+		}else
+			std::cout << "***** Found Memory Leaks *****" << std::endl;
+
+		auto itr = _memTracker._table.begin();
+		auto end = _memTracker._table.end();
+
+		while (itr != end) {
+			std::cout << "Source:: " << itr->second.fileName
+				<< ", at Line:: " << itr->second.line
+				<< std::endl;
+
+			itr = itr++;
+		}
+
+		std::cout << "****** Memory Tracker End ******" << std::endl;
+	}
+#endif
+
 	void* Heap::allocate(size_t size)
 	{
 		void* addr = nullptr;
@@ -113,6 +148,11 @@ namespace Mem {
 			_info.freeSize += allocSize;
 			_info.usedSize -= allocSize;
 			_info.currUsedBlocks--;
+
+#ifdef _MEMORY_TRACK
+			_memTracker.remove(addr);
+#endif // _MEMORY_TRACK
+
 
 		}
 		else {

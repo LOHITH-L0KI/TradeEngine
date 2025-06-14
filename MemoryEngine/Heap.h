@@ -1,6 +1,7 @@
 #ifndef HEAP_H
 #define HEAP_H
 #include <cstdint>
+#include "TrackTable.h"
 
 namespace Mem {
 
@@ -126,8 +127,15 @@ namespace Mem {
 
 	public:
 
+#ifdef _MEMORY_TRACK
+		void* allocate(size_t size, char* fileName, uint32_t lineNum);
+		void printLeaks();
+#endif //_MEMORY_TRACK 
+
 		void* allocate(size_t size);
+		//Free Reource
 		void release(void* addr);
+
 		size_t size();
 		align alignement();
 		size_t end();
@@ -138,6 +146,12 @@ namespace Mem {
 	private:
 		Info _info;
 		HeapAllocator* _allocator;
+
+#ifdef _MEMORY_TRACK
+		TrackTable _memTracker;
+#endif // _MEMORY_TRACK
+
+
 	};
 
 }

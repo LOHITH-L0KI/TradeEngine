@@ -11,11 +11,17 @@ namespace Mem {
 		static size_t constexpr FILENAME_BUFF_SIZE = 64;
 
 		struct Record {
-			size_t line;
+			uint32_t line;
 			char fileName[FILENAME_BUFF_SIZE];
 		};
 
-	private:
+	public:
+		TrackTable();
+		
+		void insert(void* object, char* fileName, uint32_t lineNum);
+		void remove(void* object);
+
+	public:
 		std::unordered_map<void*, Record> _table;
 	};
 }
