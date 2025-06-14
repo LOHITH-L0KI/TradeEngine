@@ -46,7 +46,11 @@ int main()
     //----------------------------------------------------------------------------
     /*                              MEMORY MANAGER                              */
     //----------------------------------------------------------------------------
-    Heap* heap = new Heap(Heap::format::dynamic_blocks, 1024, Heap::align::byte4);
+    Heap::DYNAMIC_HEAP_DESC builder;
+    builder.heapSize = 1024;
+    builder.alignment = Heap::align::byte4;
+    builder.polocy = Heap::allocPolocy::NextFit;
+    Heap* heap = new Heap(builder);
 
     std::cout << "New Heap\n";
     heap->printHeapFragmentation();

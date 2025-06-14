@@ -25,9 +25,16 @@ class HeapAllocator;
 			def = byte4
 		};
 
-		enum format : uint8_t {
+		enum class format : uint8_t {
 			dynamic_blocks,
 			fixed_blocks
+		};
+
+		enum class allocPolocy: uint8_t {
+			NextFit,
+			BestFit,
+			FirstFit,
+			QuickFit
 		};
 
 	public:
@@ -61,6 +68,22 @@ class HeapAllocator;
 		};
 
 
+		struct DYNAMIC_HEAP_DESC {
+
+
+			size_t heapSize;
+			align alignment;
+			allocPolocy polocy;
+		};
+
+		struct FIXED_HEAP_DESC {
+
+			size_t numberOfBlocks;
+			size_t blockSize;
+			align alignment;
+		};
+
+
 	public:
 		Heap() = delete;
 		Heap(const Heap&) = delete;
@@ -70,12 +93,10 @@ class HeapAllocator;
 
 		//Should provide heap size and heap type
 		//Dynamic block heap
-		Heap(format fmt, size_t heapSize);
-		Heap(format fmt, size_t heapSize, align alignment);
+		Heap(DYNAMIC_HEAP_DESC& dynamicBuilder);
 
 		//Fixed block heap
-		Heap(format fmt, size_t blockSize, size_t blockCount);
-		Heap(format fmt, size_t blockSize, size_t blockCount, align alignment);
+		Heap(FIXED_HEAP_DESC& fixedBuilder);
 
 	public:
 

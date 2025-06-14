@@ -19,59 +19,49 @@ namespace Mem {
 		free(_allocator);
 	}
 
-	Heap::Heap(format fmt , size_t heapSize)
-		:Heap(format::dynamic_blocks, heapSize, align::def)
-	{
-	}
-
-	Heap::Heap(format fmt, size_t heapSize, align alignment)
-		:_info(heapSize, alignment),
+	Heap::Heap(DYNAMIC_HEAP_DESC& dynamicBuilder)
+		:_info(dynamicBuilder.heapSize, dynamicBuilder.alignment),
 		_allocator(nullptr)
 	{
-		void* mem = malloc(heapSize + sizeof(DynamicBlockHeap) + sizeof(HeapGaurd) + alignment);
+		void* mem = malloc(_info.totalSize + sizeof(DynamicBlockHeap) + sizeof(HeapGaurd) + _info.heapAlign);
 		assert(mem);
 
 		//align heapallocator.
-		size_t alignedMem = ((size_t)mem + sizeof(DynamicBlockHeap) + sizeof(Block) + alignment - 1) & (~(alignment - 1));
+		size_t alignedMem = ((size_t)mem + sizeof(DynamicBlockHeap) + sizeof(Block) + _info.heapAlign - 1) & (~(_info.heapAlign - 1));
 
 		//update HeapTable.
 		size_t index = HeapTable::Add((void*)alignedMem);
-		if(index != HeapTable::npos)
-		_allocator = new((void*)alignedMem)DynamicBlockHeap(this, heapSize, index);
+		if (index != HeapTable::npos)
+			_allocator = new((void*)alignedMem)DynamicBlockHeap(this, _info.totalSize, index);
 
 		//set heap gaurd at the end of allocator
-		void* allocEnd = (void*)((size_t)(_allocator + 1) + heapSize);
+		void* allocEnd = (void*)((size_t)(_allocator + 1) + _info.totalSize);
 		HeapGaurd* gaurd = new(allocEnd) HeapGaurd();
 		gaurd->rGlobalHead.SetGlobalPrev((Block*)(_allocator + 1));
 	}
 
-	Heap::Heap(format fmt, size_t blockSize, size_t blockCount)
-		:Heap(format::fixed_blocks, blockSize, blockCount, align::def)
-	{
-	}
-
-	Heap::Heap(format fmt, size_t blockSize, size_t blockCount, align alignment)
-		:_info(blockSize * blockCount, alignment),
+	Heap::Heap(FIXED_HEAP_DESC& fixedBuilder)
+		:_info(fixedBuilder.blockSize* fixedBuilder.numberOfBlocks, fixedBuilder.alignment),
 		_allocator(nullptr)
 	{
 		size_t padding = 0;
-		if (size_t predictedNextUserAddr = (blockSize + sizeof(Block)) % alignment) {
-			padding = alignment - predictedNextUserAddr;
+		if (size_t predictedNextUserAddr = (fixedBuilder.blockSize + sizeof(Block)) % fixedBuilder.alignment) {
+			padding = fixedBuilder.alignment - predictedNextUserAddr;
 		}
 
-		size_t alignedBlockSize = blockSize + padding;
-		size_t heapSize = alignedBlockSize * blockCount;
+		size_t alignedBlockSize = fixedBuilder.blockSize + padding;
+		size_t heapSize = alignedBlockSize * fixedBuilder.numberOfBlocks;
 
-		void* mem = malloc(heapSize + sizeof(FixedBlockHeap) + sizeof(HeapGaurd) + alignment);
+		void* mem = malloc(heapSize + sizeof(FixedBlockHeap) + sizeof(HeapGaurd) + fixedBuilder.alignment);
 		assert(mem);
 
 		//align heapallocator.
-		size_t alignedMem = ((size_t)mem + sizeof(FixedBlockHeap) + sizeof(Block) + alignment - 1) & (~(alignment - 1));
+		size_t alignedMem = ((size_t)mem + sizeof(FixedBlockHeap) + sizeof(Block) + fixedBuilder.alignment - 1) & (~(fixedBuilder.alignment - 1));
 
 		//update HeapTable.
 		size_t index = HeapTable::Add(mem);
 		if (index != HeapTable::npos)
-		_allocator = new(mem)FixedBlockHeap(this, blockSize, blockCount, index);
+			_allocator = new(mem)FixedBlockHeap(this, fixedBuilder.blockSize, fixedBuilder.numberOfBlocks, index);
 
 		//set heap gaurd at the end of allocator
 		void* allocEnd = (void*)((size_t)(_allocator + 1) + heapSize);

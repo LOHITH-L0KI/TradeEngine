@@ -95,10 +95,57 @@ namespace Mem {
     {
         bool handled = false;
         //check if valid pointer
+
         if (!freeBlk)
             return handled;
 
+        Free* above = static_cast<Free*>(freeBlk->GetGlobalPrev());
+        Free* below = static_cast<Free*>(freeBlk->GetGlobalNext());
 
+        bool isAboveFree = freeBlk->IsAboveFree();
+        bool isBelowFree = below->GetType() == Block::Type::FREE;
+
+        if (isAboveFree && isBelowFree) {
+
+            //get above
+            size_t aboveSize = above->GetSize();
+            size_t belowSize = below->GetSize();
+            Block* belowsNext = below->GetNext();
+            Block* belowsGlobalNext = below->GetGlobalNext();
+
+            //add this freeBlk to above
+            above->SetSize(aboveSize + belowSize + freeBlk->GetSize() + 2*sizeof(Free));  //size
+            above->SetNext(belowsNext);
+            
+            if(belowsNext)
+                belowsNext->SetPrev(above);
+           
+            if (belowsGlobalNext)
+                belowsGlobalNext->SetGlobalPrev(above);
+          
+        }
+        else if (isAboveFree) {
+
+            above->SetSize(above->GetSize() + freeBlk->GetSize() + sizeof(Free));  //size
+            below->SetGlobalPrev(above);
+            below->SetAboveFree();
+        }
+        else if (isBelowFree) {
+
+            freeBlk->SetNext(below->GetNext());
+            freeBlk->SetPrev(below->GetPrev());
+            freeBlk->SetSize(freeBlk->GetSize() + below->GetSize() + sizeof(Free));
+
+            Block* belowsGlobalNext = below->GetGlobalNext();
+            if (belowsGlobalNext)
+                belowsGlobalNext->SetGlobalPrev(freeBlk);
+
+        }
+        else {
+            below->SetAboveFree();
+
+            //place this free block in right place of free list
+        }
 
         return handled;
     }

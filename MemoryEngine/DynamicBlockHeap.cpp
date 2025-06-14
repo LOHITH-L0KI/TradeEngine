@@ -57,6 +57,9 @@ namespace Mem {
         Block* next = usedBlk->GetNext();
         Block* prev = usedBlk->GetPrev();
 
+        if (usedBlk == _header.usedHead)
+            _header.usedHead = static_cast<Used*>(next);
+
         if (next) {
             next->SetPrev(prev);
             usedBlk->SetNext(nullptr);
