@@ -17,16 +17,16 @@ namespace Mem {
 		Block();
 		Block(size_t size, Type type);
 
-		Block* GetNext();
+		Block* GetNext() const;
 		void SetNext(Block* blk);
 
-		Block* GetPrev();
+		Block* GetPrev() const;
 		void SetPrev(Block* blk);
 
-		Block* GetGlobalPrev();
+		Block* GetGlobalPrev() const;
 		void SetGlobalPrev(Block* blk);
 
-		Block* GetGlobalNext();
+		Block* GetGlobalNext() const;
 
 		void SetHeapIndex(size_t idx);
 		size_t GetHeapIndex();
@@ -35,6 +35,8 @@ namespace Mem {
 		void SetSize(size_t size);
 
 		Type GetType() const;
+		bool IsFree() const;
+		bool IsUsed() const;
 		void SetToUsed();
 		void SetToFree();
 

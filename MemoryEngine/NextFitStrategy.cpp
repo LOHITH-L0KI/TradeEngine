@@ -25,27 +25,36 @@ namespace Mem {
             //find free space using nextfit
             Block* nxtFit = _nextFit;
             //check if current nextfit is enough to allocate required size
-            if (_nextFit->GetSize() < reqSize) {
+            if (nxtFit->GetSize() < reqSize) {
 
                 //go to next availabe free blocks till you get required size
-                _nextFit = static_cast<Free*>(_nextFit->GetNext());
+                nxtFit = static_cast<Free*>(nxtFit->GetNext());
 
-                while (nxtFit != _nextFit && _nextFit->GetSize() < reqSize) {
-                    _nextFit = static_cast<Free*>(_nextFit->GetNext());
+                while (nxtFit && nxtFit != _nextFit && nxtFit->GetSize() < reqSize) {
+                    nxtFit = static_cast<Free*>(nxtFit->GetNext());
                 }
             }
 
-            //found nextfit. Check if it has enough space to accomidate requested size. 
-            size_t availSize = _nextFit->GetSize();
+            //check if we have valid nxtFit
+            if (nxtFit) {
 
-            //split the _nextFit id availabe size > requested size
-            if (availSize > reqSize)
-                splitNextFitToAllocate(reqSize);
+                _nextFit = static_cast<Free*>(nxtFit);
 
-            allocAddr = _nextFit;
+                //found nextfit. Check if it has enough space to accomidate requested size. 
+                size_t availSize = _nextFit->GetSize();
 
-            //update nextfit
-            _nextFit = (Free*)nxtFit->GetNext();
+                if (availSize >= reqSize) {
+                    
+                    //split the _nextFit id availabe size > requested size
+                    if (availSize > reqSize)
+                        splitNextFitToAllocate(reqSize);
+
+                    allocAddr = _nextFit;
+
+                    //update nextfit
+                    _nextFit = (Free*)_nextFit->GetNext();
+                }
+            }
         }
 
         return allocAddr;
@@ -93,17 +102,16 @@ namespace Mem {
 
     bool NextFitStrategy::HandleFree(Free* freeBlk)
     {
-        bool handled = false;
         //check if valid pointer
 
         if (!freeBlk)
-            return handled;
+            return false;
 
         Free* above = static_cast<Free*>(freeBlk->GetGlobalPrev());
         Free* below = static_cast<Free*>(freeBlk->GetGlobalNext());
 
         bool isAboveFree = freeBlk->IsAboveFree();
-        bool isBelowFree = below->GetType() == Block::Type::FREE;
+        bool isBelowFree = below->IsFree();
 
         if (isAboveFree && isBelowFree) {
 
@@ -139,14 +147,33 @@ namespace Mem {
             Block* belowsGlobalNext = below->GetGlobalNext();
             if (belowsGlobalNext)
                 belowsGlobalNext->SetGlobalPrev(freeBlk);
-
         }
         else {
             below->SetAboveFree();
 
             //place this free block in right place of free list
+            Block* prevFree = nullptr;
+            Block* currFree = _nextFit;
+
+            while (currFree && currFree < freeBlk) {
+                prevFree = currFree;
+                currFree = currFree->GetNext();
+            }
+
+            //add to free list
+            freeBlk->SetNext(currFree);
+            freeBlk->SetPrev(prevFree);
+            
+            //update pointers
+            if(currFree)
+                currFree->SetPrev(freeBlk);
+            
+            if (prevFree)
+                prevFree->SetNext(freeBlk);
+            else
+                _nextFit = freeBlk;
         }
 
-        return handled;
+        return true;
     }
 }

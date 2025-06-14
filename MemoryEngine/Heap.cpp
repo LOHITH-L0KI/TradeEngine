@@ -20,7 +20,7 @@ namespace Mem {
 	}
 
 	Heap::Heap(DYNAMIC_HEAP_DESC& dynamicBuilder)
-		:_info(dynamicBuilder.heapSize, dynamicBuilder.alignment),
+		:_info(dynamicBuilder.heapSize, dynamicBuilder.alignment, format::dynamic_blocks),
 		_allocator(nullptr)
 	{
 		void* mem = malloc(_info.totalSize + sizeof(DynamicBlockHeap) + sizeof(HeapGaurd) + _info.heapAlign);
@@ -41,7 +41,7 @@ namespace Mem {
 	}
 
 	Heap::Heap(FIXED_HEAP_DESC& fixedBuilder)
-		:_info(fixedBuilder.blockSize* fixedBuilder.numberOfBlocks, fixedBuilder.alignment),
+		:_info(fixedBuilder.blockSize * fixedBuilder.numberOfBlocks, fixedBuilder.alignment, format::fixed_blocks),
 		_allocator(nullptr)
 	{
 		size_t padding = 0;

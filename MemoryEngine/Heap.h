@@ -4,8 +4,24 @@
 
 namespace Mem {
 
-class HeapAllocator;
+	class HeapAllocator;
 
+
+	/*
+	*			|---------------|
+	*	Heap -->| HeapAllocator |
+	*			|---------------|
+	*			|	  Free		|
+	*			|---------------|
+	*			|				|
+	*			|	  size		|
+	*			|	   of		|
+	*			|	  heap		|
+	*			|				|
+	*			|---------------|
+	*			|   HeapGaurd	|
+	*			|---------------|
+	*/
 
 	/// <summary>
 	/// Heap memory used for fast allocation and reduce averhead on OS to search for heap memory at run time
@@ -27,14 +43,16 @@ class HeapAllocator;
 
 		enum class format : uint8_t {
 			dynamic_blocks,
-			fixed_blocks
+			fixed_blocks,
+			undefined
 		};
 
-		enum class allocPolocy: uint8_t {
+		enum class allocPolocy : uint8_t {
 			NextFit,
 			BestFit,
 			FirstFit,
-			QuickFit
+			QuickFit,
+			Default = NextFit
 		};
 
 	public:
@@ -44,27 +62,35 @@ class HeapAllocator;
 			size_t totalSize;
 			size_t usedSize;
 			size_t freeSize;
+			size_t currFreeBlocks;
 			size_t currUsedBlocks;
 			size_t maxUsedBlocks;
 			align  heapAlign;
+			format heapFormat;
 
 			Info()
 				:totalSize(0),
 				usedSize(0),
 				freeSize(0),
+				currFreeBlocks(0),
 				currUsedBlocks(0),
 				maxUsedBlocks(0),
-				heapAlign(align::def)
-			{}
+				heapAlign(align::def),
+				heapFormat(format::undefined)
+			{
+			}
 
-			Info(size_t heapSize, align align)
+			Info(size_t heapSize, align align, format format)
 				:totalSize(heapSize),
 				usedSize(0),
 				freeSize(totalSize),
+				currFreeBlocks(1),
 				currUsedBlocks(0),
 				maxUsedBlocks(0),
-				heapAlign(align)
-			{}
+				heapAlign(align),
+				heapFormat(format)
+			{
+			}
 		};
 
 

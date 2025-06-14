@@ -65,7 +65,9 @@ namespace Mem {
 
 	}
 
-	Block* Block::GetNext()
+	//TODO:: Performance:: Pass heapAddress as aparameter and check if it improves performance. 
+	//Always reading from the table can be expensive.
+	Block* Block::GetNext() const
 	{
 		Block* next = nullptr;
 		size_t nextOffSet = GET_NEXT_OFFSET(_nav);
@@ -84,7 +86,7 @@ namespace Mem {
 
 	void Block::SetNext(Block* blk)
 	{
-		if (blk) {
+		if (blk && blk != this) {
 			size_t heapIndex = GET_HEAP_INDEX(_nav)
 			size_t heapaddr = HeapTable::GetAddress(heapIndex);
 
@@ -95,7 +97,7 @@ namespace Mem {
 			SET_NEXT_OFFSET(_nav, 0ul);
 	}
 
-	Block* Block::GetPrev()
+	Block* Block::GetPrev() const
 	{
 		Block* prev = nullptr;
 		size_t prevOffSet = GET_PREV_OFFSET(_nav);
@@ -114,7 +116,7 @@ namespace Mem {
 
 	void Block::SetPrev(Block* blk)
 	{
-		if (blk) {
+		if (blk && blk != this) {
 			size_t heapIndex = GET_HEAP_INDEX(_nav)
 			size_t heapaddr = HeapTable::GetAddress(heapIndex);
 
@@ -126,7 +128,7 @@ namespace Mem {
 			SET_PREV_OFFSET(_nav, 0ul);
 	}
 
-	Block* Block::GetGlobalPrev()
+	Block* Block::GetGlobalPrev() const
 	{
 		Block* prev = nullptr;
 		size_t prevOffSet = GET_GLOBAL_PREV_OFFSET(_magic);
@@ -150,7 +152,7 @@ namespace Mem {
 			SET_GLOBAL_PREV_OFFSET(_magic, 0ull);
 	}
 
-	Block* Block::GetGlobalNext()
+	Block* Block::GetGlobalNext() const
 	{
 		Block* gNext = nullptr;
 		size_t heapIndex = GET_HEAP_INDEX(_nav)
@@ -194,6 +196,16 @@ namespace Mem {
 		Block::Type type = static_cast<Block::Type>(GET_TYPE(_magic));
 
 		return type;
+	}
+
+	bool Block::IsFree() const
+	{
+		return static_cast<Block::Type>(GET_TYPE(_magic)) == Block::Type::FREE;
+	}
+
+	bool Block::IsUsed() const
+	{
+		return static_cast<Block::Type>(GET_TYPE(_magic)) == Block::Type::USED;
 	}
 
 	void Block::SetToUsed()
