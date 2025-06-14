@@ -113,6 +113,8 @@ namespace Mem {
         bool isAboveFree = freeBlk->IsAboveFree();
         bool isBelowFree = below->IsFree();
 
+        //if both above and below nodes are free
+        //colease with above and below
         if (isAboveFree && isBelowFree) {
 
             //get above
@@ -132,12 +134,16 @@ namespace Mem {
                 belowsGlobalNext->SetGlobalPrev(above);
           
         }
+        //if only above is free
+        //colease with above
         else if (isAboveFree) {
 
             above->SetSize(above->GetSize() + freeBlk->GetSize() + sizeof(Free));  //size
             below->SetGlobalPrev(above);
             below->SetAboveFree();
         }
+        //if only below is free
+        //colease with below
         else if (isBelowFree) {
 
             freeBlk->SetNext(below->GetNext());
@@ -148,6 +154,8 @@ namespace Mem {
             if (belowsGlobalNext)
                 belowsGlobalNext->SetGlobalPrev(freeBlk);
         }
+        //if no global neighbours are free
+        //no colease, instead add to free list
         else {
             below->SetAboveFree();
 
